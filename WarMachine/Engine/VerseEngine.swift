@@ -33,4 +33,20 @@ enum VerseEngine {
         }
         return verseOfDay(on: date)
     }
+
+    /// Weekly memorization review cadence. Returns the memorized favorite with the
+    /// oldest `lastReviewedAt` if that value is at least 7 days old (or nil). Returns
+    /// nil when there are no memorized verses or all are within the past week.
+    static func memorizationReviewDue(favorites: [FavoriteVerse], now: Date = .now) -> FavoriteVerse? {
+        let memorized = favorites.filter { $0.isMemorized }
+        guard !memorized.isEmpty else { return nil }
+        let weekSeconds: TimeInterval = 7 * 24 * 60 * 60
+        let due = memorized.filter { fv in
+            guard let last = fv.lastReviewedAt else { return true }
+            return now.timeIntervalSince(last) >= weekSeconds
+        }
+        return due.min { a, b in
+            (a.lastReviewedAt ?? .distantPast) < (b.lastReviewedAt ?? .distantPast)
+        }
+    }
 }

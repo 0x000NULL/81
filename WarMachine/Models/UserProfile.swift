@@ -35,5 +35,21 @@ final class UserProfile {
     // Weekly scripture memorization target
     var currentMemorizationReference: String?
 
+    // Optional — enables "180 − age" target for Thursday Zone 2
+    var birthDate: Date?
+
     init() {}
+}
+
+extension UserProfile {
+    /// Integer years between birthDate and `date`. Nil if birthDate isn't set.
+    func ageYears(on date: Date = .now) -> Int? {
+        guard let dob = birthDate else { return nil }
+        return Calendar.current.dateComponents([.year], from: dob, to: date).year
+    }
+
+    /// "180 − age" Zone 2 heart-rate ceiling. Nil if birthDate isn't set.
+    func zone2MaxHR(on date: Date = .now) -> Int? {
+        ageYears(on: date).map { 180 - $0 }
+    }
 }

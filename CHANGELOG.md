@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.1 — unreleased
+
+### Added
+- Recovery signals dashboard on Today: 7-day sparklines for resting HR, HRV, and sleep hours with delta-vs-mean indicators.
+- Book reading progress: per-book page/chapter counters, progress bars, and status chips in Books library.
+- 12-week timeline view in Progress tab: phase bands (Accumulation Block 1, Deload, Accumulation Block 2, Deload + Final Baseline), "You are here" marker, baseline week indicators.
+- Scripture memorization tracker: mark favorites memorized, weekly review prompt on Today view picks the least-recently-reviewed memorized verse.
+- Prayer journal enhancements: date-range filter with presets, tag filter, per-month counts in section headers, active-filter chips.
+- Full app icon set: explicit per-size PNGs (40/58/60/80/87/120/180) in addition to the 1024 marketing icon.
+- Thursday Zone 2 live HR card: live BPM readout with "180 − age" target band (green/amber/red coloring), driven by birthday field on UserProfile (entered in Settings).
+- Saturday ruck → Grit Circuit auto-handoff: after logging a ruck on Saturday, the Grit Circuit opens as a full-screen cover. Works from both the quick log (RuckLogView) and the live workout completion path.
+
+### Changed
+- SchemaV2 (1.1.0) with lightweight migration from V1. New fields: UserProfile.birthDate, BookProgress.{currentPage,totalPages,currentChapter,totalChapters,lastReadAt}, FavoriteVerse.{isMemorized,lastReviewedAt}.
+- Export schema bumped to `1.3-christian-journal`. Backwards-compatible with 1.2 payloads (missing fields default on import).
+
+### Tests
+- 17 new tests (ExportService BC, VerseEngine memorization review, TrainingPhases lookups, UserProfile age math). 59 total passing.
+
 ## 1.0 — 2026-04-19
 
 Initial release.

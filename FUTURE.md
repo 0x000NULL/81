@@ -4,14 +4,7 @@ These came up during the v1.0 build but were explicitly out of scope.
 
 ## Near-term (v1.1)
 
-- Recovery signals dashboard — 7-day HR, HRV, sleep trend cards on Today view.
-- Book reading progress page (track pages / chapters across secular + Christian).
-- Timeline view — 12-week phase descriptions with "You are here" marker.
-- Scripture memorization tracker — mark verses `memorized`, review prompts.
-- Prayer journal enhancements — date range filter, tag filter, entries-per-month counts.
-- Full app icon set at all sizes (1024 only currently). Add 180, 120, 87, 80, 60, 58, 40.
-- Live HR display during Thursday Zone 2 with "180 - age" target indicator.
-- Saturday ruck auto-hand-off to GritCircuitView on session end.
+All shipped in v1.1 — see CHANGELOG.md.
 
 ## Post-v1
 

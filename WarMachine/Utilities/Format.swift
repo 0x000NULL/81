@@ -39,4 +39,9 @@ enum Format {
         let h = seconds / 3600
         return String(format: "%.1f h", h)
     }
+
+    static func hrv(_ ms: Double?) -> String {
+        guard let ms else { return "—" }
+        return "\(Int(ms.rounded())) ms"
+    }
 }

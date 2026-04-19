@@ -24,7 +24,7 @@ struct ExportPayload: Codable {
     let favorites: [FavoriteData]
     let journal: [JournalData]
 
-    static let currentSchemaVersion = "1.2-christian-journal"
+    static let currentSchemaVersion = "1.3-christian-journal"
 }
 
 struct ProfileData: Codable {
@@ -45,6 +45,8 @@ struct ProfileData: Codable {
     let rebuildModeRemainingSessions: Int
     let lastUTMilestoneShown: Int?
     let currentMemorizationReference: String?
+    // Added in schema 1.3
+    let birthDate: Date?
 }
 
 struct WorkoutData: Codable {
@@ -168,6 +170,12 @@ struct BookData: Codable {
     let started: Bool
     let completed: Bool
     let notes: String?
+    // Added in schema 1.3 (optional for backwards compat with 1.2 payloads)
+    let currentPage: Int?
+    let totalPages: Int?
+    let currentChapter: Int?
+    let totalChapters: Int?
+    let lastReadAt: Date?
 }
 
 struct EquipmentData: Codable {
@@ -197,6 +205,9 @@ struct FavoriteData: Codable {
     let reference: String
     let savedAt: Date
     let note: String?
+    // Added in schema 1.3 (optional for backwards compat with 1.2 payloads)
+    let isMemorized: Bool?
+    let lastReviewedAt: Date?
 }
 
 struct JournalData: Codable {
@@ -246,7 +257,8 @@ enum ExportService {
                             injuryNote: $0.injuryNote,
                             rebuildModeRemainingSessions: $0.rebuildModeRemainingSessions,
                             lastUTMilestoneShown: $0.lastUTMilestoneShown,
-                            currentMemorizationReference: $0.currentMemorizationReference)
+                            currentMemorizationReference: $0.currentMemorizationReference,
+                            birthDate: $0.birthDate)
             },
             workouts: workouts.map {
                 WorkoutData(id: $0.id, date: $0.date, dayType: $0.dayTypeRaw,
@@ -329,7 +341,10 @@ enum ExportService {
             },
             books: books.map {
                 BookData(title: $0.title, author: $0.author, isChristian: $0.isChristian,
-                         started: $0.started, completed: $0.completed, notes: $0.notes)
+                         started: $0.started, completed: $0.completed, notes: $0.notes,
+                         currentPage: $0.currentPage, totalPages: $0.totalPages,
+                         currentChapter: $0.currentChapter, totalChapters: $0.totalChapters,
+                         lastReadAt: $0.lastReadAt)
             },
             equipment: equipment.map {
                 EquipmentData(name: $0.name, isMustHave: $0.isMustHave, owned: $0.owned,
@@ -343,7 +358,8 @@ enum ExportService {
                                durationMinutes: $0.durationMinutes, notes: $0.notes)
             },
             favorites: favorites.map {
-                FavoriteData(reference: $0.reference, savedAt: $0.savedAt, note: $0.note)
+                FavoriteData(reference: $0.reference, savedAt: $0.savedAt, note: $0.note,
+                             isMemorized: $0.isMemorized, lastReviewedAt: $0.lastReviewedAt)
             },
             journal: journal.map {
                 JournalData(id: $0.id, createdAt: $0.createdAt, date: $0.date,
@@ -415,12 +431,15 @@ enum ExportService {
             profile.rebuildModeRemainingSessions = p.rebuildModeRemainingSessions
             profile.lastUTMilestoneShown = p.lastUTMilestoneShown
             profile.currentMemorizationReference = p.currentMemorizationReference
+            profile.birthDate = p.birthDate
             context.insert(profile)
         }
 
         for f in payload.favorites {
             let fv = FavoriteVerse(reference: f.reference, note: f.note)
             fv.savedAt = f.savedAt
+            fv.isMemorized = f.isMemorized ?? false
+            fv.lastReviewedAt = f.lastReviewedAt
             context.insert(fv)
         }
 
@@ -496,6 +515,11 @@ enum ExportService {
             bp.started = b.started
             bp.completed = b.completed
             bp.notes = b.notes
+            bp.currentPage = b.currentPage ?? 0
+            bp.totalPages = b.totalPages ?? 0
+            bp.currentChapter = b.currentChapter ?? 0
+            bp.totalChapters = b.totalChapters ?? 0
+            bp.lastReadAt = b.lastReadAt
             context.insert(bp)
         }
 
