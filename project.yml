@@ -3,7 +3,7 @@ name: WarMachine
 options:
   bundleIdPrefix: com.warmachine
   deploymentTarget:
-    iOS: "17.0"
+    iOS: "17.4"
   createIntermediateGroups: true
   generateEmptyDirectories: true
   xcodeVersion: "15.4"
@@ -12,7 +12,7 @@ options:
   transitivelyLinkDependencies: true
 
 attributes:
-  ORGANIZATIONNAME: "War Machine"
+  ORGANIZATIONNAME: "81"
   BuildIndependentTargetsInParallel: YES
 
 settings:
@@ -52,7 +52,7 @@ targets:
   WarMachine:
     type: application
     platform: iOS
-    deploymentTarget: "17.0"
+    deploymentTarget: "17.4"
     sources:
       - path: WarMachine
         excludes:
@@ -63,7 +63,8 @@ targets:
         optional: true
     settings:
       base:
-        PRODUCT_NAME: "War Machine"
+        PRODUCT_NAME: "81"
+        PRODUCT_MODULE_NAME: WarMachine
         PRODUCT_BUNDLE_IDENTIFIER: com.warmachine.app
         TARGETED_DEVICE_FAMILY: "1"                       # iPhone only
         SUPPORTS_MACCATALYST: NO
@@ -78,7 +79,7 @@ targets:
     info:
       path: WarMachine/Resources/Info.plist
       properties:
-        CFBundleDisplayName: War Machine
+        CFBundleDisplayName: "81"
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleName: $(PRODUCT_NAME)
@@ -94,8 +95,8 @@ targets:
         UIUserInterfaceStyle: Dark
         UIViewControllerBasedStatusBarAppearance: true
         # HealthKit
-        NSHealthShareUsageDescription: "War Machine reads your resting heart rate, heart rate variability, sleep, and bodyweight to track recovery and autoregulate training."
-        NSHealthUpdateUsageDescription: "War Machine saves completed workouts to your Health app."
+        NSHealthShareUsageDescription: "81 reads your resting heart rate, heart rate variability, sleep, and bodyweight to track recovery and autoregulate training."
+        NSHealthUpdateUsageDescription: "81 saves completed workouts to your Health app."
         # Location (for ruck GPS)
         NSLocationWhenInUseUsageDescription: "Used to record route and distance during rucks."
         NSLocationAlwaysAndWhenInUseUsageDescription: "Used to record route and distance during rucks even when the screen is off."
@@ -108,6 +109,10 @@ targets:
           - fetch
         UIFileSharingEnabled: false
         LSSupportsOpeningDocumentsInPlace: false
+        CFBundleURLTypes:
+          - CFBundleURLName: com.warmachine.app
+            CFBundleURLSchemes:
+              - warmachine
     entitlements:
       path: WarMachine/Resources/WarMachine.entitlements
       properties:
@@ -125,7 +130,7 @@ targets:
   GtgWidget:
     type: app-extension
     platform: iOS
-    deploymentTarget: "17.0"
+    deploymentTarget: "17.4"
     sources:
       - path: GtgWidget
         excludes:
@@ -144,7 +149,7 @@ targets:
     info:
       path: GtgWidget/Info.plist
       properties:
-        CFBundleDisplayName: "War Machine GTG"
+        CFBundleDisplayName: "81 GTG"
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         CFBundleName: $(PRODUCT_NAME)
@@ -160,7 +165,7 @@ targets:
   WarMachineTests:
     type: bundle.unit-test
     platform: iOS
-    deploymentTarget: "17.0"
+    deploymentTarget: "17.4"
     sources:
       - path: WarMachineTests
         optional: true
@@ -170,7 +175,7 @@ targets:
         GENERATE_INFOPLIST_FILE: YES
         CODE_SIGN_STYLE: Automatic
         BUNDLE_LOADER: "$(TEST_HOST)"
-        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/War Machine.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/War Machine"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/81.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/81"
     dependencies:
       - target: WarMachine
 
@@ -178,7 +183,7 @@ targets:
   WarMachineUITests:
     type: bundle.ui-testing
     platform: iOS
-    deploymentTarget: "17.0"
+    deploymentTarget: "17.4"
     sources:
       - path: WarMachineUITests
         optional: true
