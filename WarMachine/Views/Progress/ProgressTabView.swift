@@ -11,6 +11,25 @@ struct ProgressTabView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: Theme.Spacing.section) {
+                    NavigationLink {
+                        TimelineView()
+                    } label: {
+                        Card {
+                            HStack {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Timeline")
+                                        .foregroundStyle(Theme.textPrimary)
+                                    Text("12-week phases · You are here")
+                                        .font(.caption)
+                                        .foregroundStyle(Theme.textSecondary)
+                                }
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundStyle(Theme.textSecondary)
+                            }
+                        }
+                    }
+                    .buttonStyle(.plain)
                     mainLiftsCard
                     ruckPaceCard
                     baselineCard

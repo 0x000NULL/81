@@ -94,6 +94,89 @@ actor HealthKitService {
         }
     }
 
+    // MARK: 7-day series (for Today recovery dashboard)
+
+    func restingHRSeries(days: Int, endingOn date: Date = .now) async throws -> [DailyMetric] {
+        guard let type = HKObjectType.quantityType(forIdentifier: .restingHeartRate) else { return [] }
+        return try await quantityDailySeries(
+            type: type,
+            unit: HKUnit.count().unitDivided(by: .minute()),
+            days: days,
+            endingOn: date
+        )
+    }
+
+    func hrvSeries(days: Int, endingOn date: Date = .now) async throws -> [DailyMetric] {
+        guard let type = HKObjectType.quantityType(forIdentifier: .heartRateVariabilitySDNN) else { return [] }
+        return try await quantityDailySeries(
+            type: type,
+            unit: .secondUnit(with: .milli),
+            days: days,
+            endingOn: date
+        )
+    }
+
+    /// Sleep-hours per night over the past `days` nights. Sums asleepCore + asleepREM + asleepDeep
+    /// (matches the single-night convention used elsewhere). A sample is bucketed to the night that
+    /// contains its endDate, using noon-to-noon windows.
+    func sleepHoursSeries(days: Int, endingOn date: Date = .now) async throws -> [DailyMetric] {
+        guard let type = HKCategoryType.categoryType(forIdentifier: .sleepAnalysis) else { return [] }
+        let cal = Calendar.current
+        let endOverall = cal.startOfDay(for: date).addingTimeInterval(12 * 3600)
+        let startOverall = cal.date(byAdding: .day, value: -days, to: endOverall) ?? endOverall
+        let pred = HKQuery.predicateForSamples(withStart: startOverall, end: endOverall, options: .strictStartDate)
+
+        let keep: Set<Int> = [
+            HKCategoryValueSleepAnalysis.asleepCore.rawValue,
+            HKCategoryValueSleepAnalysis.asleepREM.rawValue,
+            HKCategoryValueSleepAnalysis.asleepDeep.rawValue
+        ]
+
+        let samples: [HKCategorySample] = try await withCheckedThrowingContinuation { (cont: CheckedContinuation<[HKCategorySample], Error>) in
+            let q = HKSampleQuery(sampleType: type, predicate: pred, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, samples, error in
+                if let error { cont.resume(throwing: error); return }
+                cont.resume(returning: samples as? [HKCategorySample] ?? [])
+            }
+            store.execute(q)
+        }
+
+        var buckets: [Date: TimeInterval] = [:]
+        for s in samples where keep.contains(s.value) {
+            let bucketDay = cal.startOfDay(for: s.endDate.addingTimeInterval(12 * 3600))
+            buckets[bucketDay, default: 0] += s.endDate.timeIntervalSince(s.startDate)
+        }
+        return buckets
+            .map { DailyMetric(day: $0.key, value: $0.value / 3600.0) }
+            .sorted { $0.day < $1.day }
+    }
+
+    private func quantityDailySeries(type: HKQuantityType,
+                                     unit: HKUnit,
+                                     days: Int,
+                                     endingOn date: Date) async throws -> [DailyMetric] {
+        let cal = Calendar.current
+        let end = cal.startOfDay(for: date).addingTimeInterval(86400)
+        let start = cal.date(byAdding: .day, value: -days, to: cal.startOfDay(for: date)) ?? date
+        let pred = HKQuery.predicateForSamples(withStart: start, end: end, options: .strictStartDate)
+
+        let samples: [HKQuantitySample] = try await withCheckedThrowingContinuation { (cont: CheckedContinuation<[HKQuantitySample], Error>) in
+            let q = HKSampleQuery(sampleType: type, predicate: pred, limit: HKObjectQueryNoLimit, sortDescriptors: nil) { _, samples, error in
+                if let error { cont.resume(throwing: error); return }
+                cont.resume(returning: samples as? [HKQuantitySample] ?? [])
+            }
+            store.execute(q)
+        }
+
+        var buckets: [Date: [Double]] = [:]
+        for s in samples {
+            let day = cal.startOfDay(for: s.startDate)
+            buckets[day, default: []].append(s.quantity.doubleValue(for: unit))
+        }
+        return buckets
+            .map { DailyMetric(day: $0.key, value: $0.value.reduce(0, +) / Double($0.value.count)) }
+            .sorted { $0.day < $1.day }
+    }
+
     private func mostRecentQuantity(type: HKQuantityType, unit: HKUnit) async throws -> Double? {
         try await withCheckedThrowingContinuation { (cont: CheckedContinuation<Double?, Error>) in
             let sort = NSSortDescriptor(key: HKSampleSortIdentifierEndDate, ascending: false)
@@ -157,4 +240,10 @@ actor HealthKitService {
 
 enum HealthKitError: Error {
     case unavailable
+}
+
+struct DailyMetric: Identifiable, Sendable, Hashable {
+    let day: Date
+    let value: Double
+    var id: Date { day }
 }

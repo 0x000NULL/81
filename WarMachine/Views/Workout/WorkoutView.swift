@@ -12,6 +12,7 @@ struct WorkoutView: View {
     @State private var showingPreWorkoutPrayer = false
     @State private var showingSummary = false
     @State private var restTimerDuration: Int?
+    @State private var pendingGritSessionID: UUID?
 
     private var session: WorkoutSession? {
         sessions.first { $0.id == sessionID }
@@ -46,6 +47,9 @@ struct WorkoutView: View {
                         )
                     }
                     WarmUpCard(routine: WarmUps.of(session.dayType), done: $warmUpDone)
+                    if session.dayType == .zone2 {
+                        Zone2LiveHRCard(maxHR: profile?.zone2MaxHR())
+                    }
                     travelModeRow(session: session)
                     if let duration = restTimerDuration {
                         RestTimerView(duration: duration, onSkip: {
@@ -90,10 +94,45 @@ struct WorkoutView: View {
             if let session {
                 WorkoutSummaryView(session: session, onDone: {
                     showingSummary = false
-                    dismiss()
+                    if session.dayType == .grit, shouldOpenGritCircuit() {
+                        let grit = WorkoutSession(dayType: .grit)
+                        grit.startedAt = .now
+                        context.insert(grit)
+                        try? context.save()
+                        pendingGritSessionID = grit.id
+                    } else {
+                        dismiss()
+                    }
                 })
                 .preferredColorScheme(.dark)
             }
+        }
+        .fullScreenCover(isPresented: Binding(
+            get: { pendingGritSessionID != nil },
+            set: { if !$0 {
+                pendingGritSessionID = nil
+                dismiss()
+            } }
+        )) {
+            if let id = pendingGritSessionID {
+                NavigationStack {
+                    GritCircuitView(sessionID: id)
+                }
+                .preferredColorScheme(.dark)
+            }
+        }
+    }
+
+    /// True when we should auto-present the Grit Circuit after the ruck:
+    /// today is Saturday (.grit) and no completed grit circuit exists yet today
+    /// besides the session we just completed.
+    private func shouldOpenGritCircuit() -> Bool {
+        guard TrainingSchedule.dayType(on: .now) == .grit else { return false }
+        let cal = Calendar.current
+        let others = sessions.filter { $0.id != sessionID }
+        return !others.contains { s in
+            guard s.dayType == .grit, let done = s.completedAt else { return false }
+            return cal.isDate(done, inSameDayAs: .now)
         }
     }
 

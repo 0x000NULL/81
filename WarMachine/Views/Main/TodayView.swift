@@ -7,6 +7,7 @@ struct TodayView: View {
     @Query private var sessions: [WorkoutSession]
     @Query private var dailyLogs: [DailyLog]
     @Query private var baselineTests: [BaselineTest]
+    @Query private var favorites: [FavoriteVerse]
 
     @State private var showingSkipSheet = false
     @State private var showingResumeSheet = false
@@ -45,6 +46,10 @@ struct TodayView: View {
         VerseEngine.themedVerseOfDay(theme: VerseEngine.preferredTheme(for: todayDayType))
     }
 
+    private var memorizationDue: FavoriteVerse? {
+        VerseEngine.memorizationReviewDue(favorites: favorites)
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -55,8 +60,10 @@ struct TodayView: View {
                     if let milestone = utMilestone { utBanner(milestone: milestone) }
                     todayCard
                     VerseCard(verse: verseOfDay)
+                    if let due = memorizationDue { memorizationReviewCard(for: due) }
                     dailyGritCard
                     gtgSummaryCard
+                    RecoverySignalsCard()
                     healthSummaryCard
                 }
                 .padding()
@@ -210,6 +217,44 @@ struct TodayView: View {
         case .zone2: return "figure.run"
         case .grit: return "figure.hiking"
         case .rest: return "moon.fill"
+        }
+    }
+
+    private func memorizationReviewCard(for fav: FavoriteVerse) -> some View {
+        let verse = BibleVerses.byReference(fav.reference)
+        return Card {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack(spacing: 6) {
+                    Image(systemName: "checkmark.seal.fill")
+                        .font(.caption)
+                    Text("Memorization review")
+                        .font(.caption.weight(.semibold))
+                    Spacer()
+                }
+                .foregroundStyle(Theme.textSecondary)
+
+                Text(fav.reference)
+                    .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Theme.textPrimary)
+                if let v = verse {
+                    Text(v.text)
+                        .font(.footnote)
+                        .foregroundStyle(Theme.verseBody)
+                }
+                Button {
+                    fav.lastReviewedAt = .now
+                    try? context.save()
+                } label: {
+                    Text("Reviewed")
+                        .font(.subheadline.weight(.semibold))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Theme.bg)
+                        .clipShape(Capsule())
+                        .foregroundStyle(Theme.textPrimary)
+                }
+                .buttonStyle(.plain)
+            }
         }
     }
 

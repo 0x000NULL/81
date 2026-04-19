@@ -16,6 +16,9 @@ struct SettingsView: View {
     @State private var showingExporter: URL?
     @State private var showingImporter = false
     @State private var showingAbout = false
+    @State private var dataError: String?
+    @State private var birthDate: Date = Date()
+    @State private var birthDateSet: Bool = false
 
     private var profile: UserProfile? { profiles.first }
 
@@ -56,6 +59,33 @@ struct SettingsView: View {
                     }
                     Button("Reschedule") {
                         saveTimes()
+                    }
+                }
+
+                Section("Birthday") {
+                    Toggle("Set birthday", isOn: $birthDateSet)
+                        .onChange(of: birthDateSet) { _, isOn in
+                            profile?.birthDate = isOn ? birthDate : nil
+                            try? context.save()
+                        }
+                    if birthDateSet {
+                        DatePicker("Birthday",
+                                   selection: $birthDate,
+                                   in: ...Date(),
+                                   displayedComponents: .date)
+                            .onChange(of: birthDate) { _, newVal in
+                                profile?.birthDate = newVal
+                                try? context.save()
+                            }
+                        if let age = profile?.ageYears() {
+                            Text("Age: \(age) · Zone 2 target ≤ \(180 - age) bpm")
+                                .font(.caption)
+                                .foregroundStyle(Theme.textSecondary)
+                        }
+                    } else {
+                        Text("Required for the Thursday Zone 2 target (180 − age).")
+                            .font(.caption)
+                            .foregroundStyle(Theme.textSecondary)
                     }
                 }
 
@@ -114,6 +144,10 @@ struct SettingsView: View {
                     eveningHour = p.eveningReminderHour
                     eveningMinute = p.eveningReminderMinute
                     workoutHour = p.workoutReminderHour
+                    if let dob = p.birthDate {
+                        birthDate = dob
+                        birthDateSet = true
+                    }
                 }
             }
             .confirmationDialog("Reset everything?", isPresented: $showingReset, titleVisibility: .visible) {
@@ -139,6 +173,15 @@ struct SettingsView: View {
             .sheet(isPresented: $showingAbout) {
                 AboutUncomfortableTruthView()
                     .preferredColorScheme(.dark)
+            }
+            .alert(
+                "Data error",
+                isPresented: Binding(get: { dataError != nil },
+                                     set: { if !$0 { dataError = nil } })
+            ) {
+                Button("OK", role: .cancel) { dataError = nil }
+            } message: {
+                Text(dataError ?? "")
             }
         }
     }
@@ -166,19 +209,22 @@ struct SettingsView: View {
             let url = try ExportService.writeToTempFile(payload)
             showingExporter = url
         } catch {
-            // TODO: surface to UI
+            dataError = "Export failed: \(error.localizedDescription)"
         }
     }
 
     private func importData(from url: URL) {
         do {
-            guard url.startAccessingSecurityScopedResource() else { return }
+            guard url.startAccessingSecurityScopedResource() else {
+                dataError = "Couldn't access the selected file."
+                return
+            }
             defer { url.stopAccessingSecurityScopedResource() }
             let data = try Data(contentsOf: url)
             let payload = try ExportService.decode(data)
             try ExportService.importPayload(payload, into: context)
         } catch {
-            // TODO: surface
+            dataError = "Import failed: \(error.localizedDescription)"
         }
     }
 

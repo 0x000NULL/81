@@ -29,6 +29,46 @@ enum SchemaV1: VersionedSchema {
     }
 }
 
+// v1.1 — additive-only field changes; all new fields are optional or defaulted,
+// which SwiftData handles as a lightweight migration.
+//   UserProfile:   + birthDate: Date?
+//   BookProgress:  + currentPage/totalPages/currentChapter/totalChapters (Int, default 0), + lastReadAt: Date?
+//   FavoriteVerse: + isMemorized (Bool, default false), + lastReviewedAt: Date?
+enum SchemaV2: VersionedSchema {
+    static let versionIdentifier = Schema.Version(1, 1, 0)
+
+    static var models: [any PersistentModel.Type] {
+        [
+            UserProfile.self,
+            WorkoutSession.self,
+            ExerciseLog.self,
+            SetLog.self,
+            LiftProgression.self,
+            DailyLog.self,
+            GtgLog.self,
+            RuckLog.self,
+            SundayReview.self,
+            BaselineTest.self,
+            BookProgress.self,
+            EquipmentItem.self,
+            PrayerLog.self,
+            MeditationLog.self,
+            FavoriteVerse.self,
+            PrayerJournalEntry.self
+        ]
+    }
+}
+
+enum WarMachineMigrationPlan: SchemaMigrationPlan {
+    static var schemas: [any VersionedSchema.Type] {
+        [SchemaV1.self, SchemaV2.self]
+    }
+
+    static var stages: [MigrationStage] {
+        [.lightweight(fromVersion: SchemaV1.self, toVersion: SchemaV2.self)]
+    }
+}
+
 @MainActor
 final class AppModelContainer {
     static let shared = AppModelContainer()
@@ -36,7 +76,7 @@ final class AppModelContainer {
     let container: ModelContainer
 
     private init() {
-        let schema = Schema(versionedSchema: SchemaV1.self)
+        let schema = Schema(versionedSchema: SchemaV2.self)
         let config: ModelConfiguration
         if let groupURL = FileManager.default
             .containerURL(forSecurityApplicationGroupIdentifier: AppGroup.suiteName) {
@@ -47,7 +87,11 @@ final class AppModelContainer {
             config = ModelConfiguration(schema: schema)
         }
         do {
-            container = try ModelContainer(for: schema, configurations: [config])
+            container = try ModelContainer(
+                for: schema,
+                migrationPlan: WarMachineMigrationPlan.self,
+                configurations: [config]
+            )
         } catch {
             log.error("Fatal: failed to create ModelContainer: \(String(describing: error))")
             fatalError("Could not create ModelContainer: \(error)")
