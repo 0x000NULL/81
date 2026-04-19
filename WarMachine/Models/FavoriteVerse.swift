@@ -1,0 +1,15 @@
+import Foundation
+import SwiftData
+
+@Model
+final class FavoriteVerse {
+    @Attribute(.unique) var reference: String = ""
+    var savedAt: Date = Date.now
+    var note: String?
+
+    init(reference: String, note: String? = nil) {
+        self.reference = reference
+        self.savedAt = .now
+        self.note = note
+    }
+}
