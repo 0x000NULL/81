@@ -1,0 +1,1108 @@
+The War Machine Protocol
+
+Complete training, nutrition, recovery, and mental toughness system
+
+Inspired by Alan Ritchson’s “81” and Army Ranger conditioning standards
+
+
+
+Table of Contents
+ 1. Philosophy & How to Use This
+
+ 2. The Weekly Framework
+
+ 3. Progression Rules
+
+ 4. Training Days (With Alternatives for Every Exercise)
+
+ 5. Daily Grease-the-Groove Pull-ups
+
+ 6. Scaling by Experience Level
+
+ 7. Nutrition
+
+ 8. Recovery & Sleep
+
+ 9. The Grit Protocol
+
+10. The Hard Thing Menu
+
+11. Self-Talk Scripts
+
+12. Tracking Tables
+
+13. Return Protocol (When You Fail)
+
+14. Equipment Guide
+
+15. Book Recommendations
+
+16. Timeline: What to Expect
+
+17. First 2-Week Onboarding Checklist
+<a name="philosophy"></a>
+
+
+1. Philosophy & How to Use This
+This is a complete system — physical training, conditioning, nutrition, recovery, and mental
+toughness — built to develop the kind of strength, endurance, and grit that Alan Ritchson’s
+character “81” embodies in War Machine (2026). It blends bodybuilding-style hypertrophy
+work (for size and visual strength) with Army Ranger conditioning (for real-world endurance
+and resilience).
+
+Run it for 8–12 weeks, then reassess. Deload every 5–6 weeks.
+
+The three pillars, ranked by actual importance:
+
+1. Consistency — showing up 6 days a week for months
+
+2. Recovery — sleep, food, stress management
+
+3. Programming — the actual workouts
+
+Most people obsess over #3 and neglect #1 and #2. Don’t.
+
+
+
+
+<a name="framework"></a>
+
+
+2. The Weekly Framework
+
+  Day              Focus                       Duration   Why here
+
+                                               60–75      Fresh from Sunday rest; 48h before
+  Monday           Legs
+                                               min        next hard session
+
+                                               45–60
+  Tuesday          Intervals + Core                       Legs recovered; CNS fresh
+                                               min
+
+                   Push                        60–75
+  Wednesday                                               Upper body; legs keep recovering
+                   (chest/shoulders/triceps)   min
+
+                                               45–60
+  Thursday         Zone 2 endurance                       Pure aerobic; recovery for lifts
+                                               min
+
+                   Pull (back/biceps) +        60–75
+  Friday                                                  48h from Wednesday push
+                   Carries                     min
+
+                   Grit Day (long ruck +       90–150
+  Saturday          circuit)                        min        Legs had Mon/Tue/Thu to recover
+
+
+                                                    20–30
+  Sunday            Rest + mobility                            Full recovery
+                                                    min
+
+
+Plus daily, every day: grease-the-groove pull-ups — 3–5 strict reps, 5–8 times throughout
+the day (see Section 5).
+
+
+
+
+<a name="progression"></a>
+
+
+3. Progression Rules (Autoregulated)
+Forget the calendar. Progress when you earn it.
+
+
+  Element               Trigger to progress                             How much to add
+
+  Main                  Hit top of rep range for ALL working sets
+                                                                        +5 lbs upper, +10 lbs lower
+  compound lifts        with clean form
+
+  Accessory lifts       Top of rep range × 2 consecutive sessions       +5 lbs or +1 set
+
+                        Complete distance at target pace with good
+  Ruck weight                                                           +2.5–5 lbs
+                        posture
+
+  Ruck distance         Complete current distance comfortably           +0.5 miles
+
+  Intervals             Hit all reps at target effort                   +1 round
+
+                                                                        Add 1 rep per set OR
+  Pull-ups (GTG)        Daily reps feel easy
+                                                                        weighted vest
+
+
+Deload every 5–6 weeks: cut working weights 40%, same movements, one full week. Non-
+negotiable. Skipping deloads is how injuries happen.
+
+
+
+
+<a name="training"></a>
+
+
+4. Training Days (With Alternatives)
+Every exercise has alternatives for: (a) no access to specific equipment, (b)
+injury/discomfort, (c) travel/home-only situations.
+MONDAY — LEGS
+Warm-up (5–8 min): Bike or row 5 min, then: 20 bodyweight squats, 10 walking lunges
+each leg, 10 glute bridges, 10 leg swings each direction.
+
+
+                      Sets ×
+  #     Exercise                      Rest     Alternatives
+                      Reps
+
+                                      3        Front squat • Safety bar squat • Goblet squat •
+  1     Back squat    4 × 4–6
+                                      min      Bulgarian split squat
+
+        Romanian                      2        Dumbbell RDL • Single-leg RDL • Good morning
+  2                   3 × 6–8
+        deadlift                      min      • Hip thrust
+
+        Walking       3 × 10          90       Reverse lunge • Step-up • Split squat •
+  3
+        lunges (DB)   each leg        sec      Bulgarian split squat
+
+                                      90       Hack squat • Goblet squat • Heel-elevated
+  4     Leg press     3 × 10–12
+                                      sec      squat • Belt squat
+
+                                      60       Nordic curl • Swiss ball curl • Glute-ham raise •
+  5     Leg curl      3 × 12
+                                      sec      Single-leg bridge
+
+        Standing                      60       Seated calf raise • Single-leg calf raise •
+  6                   4 × 12–15
+        calf raise                    sec      Donkey calf raise
+
+                      6 × 20
+        Finisher:                     90       Prowler • Heavy farmer’s carries • Weighted
+  7                   yards
+        Sled push                     sec      step-ups • Assault bike sprints
+                      heavy
+
+
+Cool-down: 10 min hip and ankle mobility.
+
+
+
+
+TUESDAY — INTERVALS + CORE
+Warm-up (10 min): Easy jog or bike, then dynamic stretching.
+
+Interval options (pick one):
+
+
+  Option                Protocol                                        Equipment
+
+                                                                        Track or measured
+  Track 400s            8 × 400m at 85–90%, 90 sec walking rest
+                                                                        route
+
+                        10 × 30 sec hill sprint, walk down
+  Hill sprints                                                          Any hill
+                            recovery
+
+ Assault bike               10 × 1 min hard / 1 min easy                    Bike
+
+ Rower                      10 × 250m hard / 90 sec easy                    Rowing machine
+
+ Treadmill                  8 × 2 min hard / 1 min easy                     Treadmill
+
+ Jump rope                  10 × 1 min fast / 30 sec rest                   Rope
+
+ Swim                       10 × 50m hard / 30 sec rest                     Pool
+
+ Bodyweight
+                            8 rounds: 30 sec burpees / 30 sec rest          None
+ (travel)
+
+
+Cool-down (5 min easy) + Core circuit — 3 rounds:
+
+
+ Exercise            Reps                  Alternatives
+
+                                           Cable woodchop • Band anti-rotation • Side plank with
+ Pallof press        10 each side
+                                           reach
+
+                     30 sec each           Side plank with hip dip • Copenhagen plank • Suitcase
+ Side plank
+                     side                  carry
+
+ Ab wheel                                  Barbell rollout • Plank to push-up • Dead bug • Hollow
+                     8–12
+ rollout                                   hold
+
+
+
+
+WEDNESDAY — PUSH
+Warm-up (5–8 min): 5 min row or bike, band pull-aparts 2 × 15, light pressing.
+
+
+ #      Exercise            Sets × Reps       Rest      Alternatives
+
+        Barbell bench                         3         DB bench • Floor press • Incline bench •
+ 1                          4 × 4–6
+        press                                 min       Weighted push-up
+
+        Standing
+                                              2         DB shoulder press • Seated press •
+ 2      overhead            4 × 6–8
+                                              min       Landmine press • Push press
+        press
+
+        Incline DB                            90        Incline barbell • Incline machine • Decline
+ 3                          3 × 8–10
+        press                                 sec       push-up • Svend press
+  4     Lateral raise      3 × 12–15            60       Cable lateral • Machine lateral • Band lateral
+                                                sec      • Leaning lateral
+
+        Weighted                                90       Bench dip • Close-grip bench • Ring dip •
+  5                        3 × 8–12
+        dips                                    sec      Parallette dip
+
+        Triceps rope                            60       Skull crusher • Overhead extension •
+  6                        3 × 12–15
+        pushdown                                sec      Diamond push-up • Close-grip bench
+
+        Finisher:          10 min, 30s                   Shadow boxing • Battle ropes • Mountain
+  7                                             —
+        Jump rope          on / 30s off                  climbers • Bike sprints
+
+
+Cool-down: 10 min thoracic spine and shoulder mobility.
+
+
+
+
+THURSDAY — ZONE 2 ENDURANCE
+This is the day most people skip. Don’t.
+
+Protocol: 45–60 min continuous, easy pace. You can nose-breathe the whole time OR hold
+a full conversation without gasping. Target HR: roughly 180 minus your age.
+
+If you finish feeling “I could do that again” — that’s the right effort. If you’re cooked, you
+went too hard.
+
+Options (rotate to prevent boredom):
+
+
+  Option                                  Notes
+
+  Easy jog outdoors                       Default. Conversation pace.
+
+  Incline treadmill walk                  10–15% grade, 3.0–3.5 mph. Easier on joints.
+
+  Unloaded hike                           Hills are fine; just keep effort easy.
+
+  Bike (road or stationary)               Lowest joint impact. Great option.
+
+  Swim (easy laps)                        Full recovery from impact sports.
+
+  Rowing (steady state)                   Full-body, low impact.
+
+  Elliptical                              Boring but effective.
+
+  Ruck (light)                            15–20 lbs only, not the heavy Saturday load.
+
+
+No lifting today. Recovery is the point.
+FRIDAY — PULL + CARRIES
+Warm-up (5–8 min): 5 min row, band pull-aparts, light deadlift ramps.
+
+
+                             Sets ×
+ #     Exercise                            Rest    Alternatives
+                             Reps
+
+       Deadlift
+                                           3       Sumo deadlift • Rack pull • Romanian
+ 1     (conventional or      4 × 3–5
+                                           min     deadlift • Kettlebell swing (heavy)
+       trap bar)
+
+                                           2       Bodyweight pull-up • Lat pulldown •
+ 2     Weighted pull-ups     4 × 5–8
+                                           min     Assisted pull-up • Inverted row
+
+                                           2       Pendlay row • T-bar row • Seal row •
+ 3     Barbell row           4 × 6–8
+                                           min     Chest-supported DB row
+
+                                           90      Machine row • Inverted row • One-arm
+ 4     Seated cable row      3 × 10–12
+                                           sec     DB row • Band row
+
+                                           60      Rear delt fly • Band pull-apart •
+ 5     Face pull             3 × 15
+                                           sec     Reverse pec deck • YTW raises
+
+                                           60      EZ bar curl • DB curl • Cable curl •
+ 6     Barbell curl          3 × 8–10
+                                           sec     Chin-up
+
+                                           60      Cross-body curl • Rope hammer curl •
+ 7     Hammer curl           3 × 10–12
+                                           sec     Zottman curl • Towel curl
+
+       Carries: Farmer’s     4 × 40        90      Trap bar carry • Kettlebell carry •
+ 8
+       carry                 yards heavy   sec     Sandbag carry • Dumbbell carry
+
+                             2 × 20
+       Carries: Suitcase                   60      Waiter’s walk • Bottoms-up KB carry •
+ 9                           yards each
+       carry (one-sided)                   sec     Rack carry • Overhead carry
+                             side
+
+
+Cool-down: 10 min hip and lat mobility.
+
+
+
+
+SATURDAY — GRIT DAY
+The one that matters most. Modeled on Ranger standards.
+
+Part 1: Long ruck
+   Distance: 6–10 miles (scale by level — see Section 6)
+
+   Weight: 35–45 lbs
+
+   Target pace: 15 min/mile
+
+   Route: Varied terrain if possible
+
+Part 2: Immediately after — circuit (break as needed, finish the work):
+
+
+ Exercise       Reps          Alternatives
+
+ Push-ups       50            Incline push-up • Knee push-up • Wall push-up
+
+ Pull-ups       25            Inverted row • Band-assisted pull-up • Lat pulldown
+
+ Air squats     100           Goblet squat • Split squat • Wall sit (60 sec each round of 20)
+
+ Sit-ups        50            Crunch • V-up • Leg raise
+
+ Bear crawl     40 yards      Crab walk • High plank shoulder tap • Mountain climbers
+
+
+Cool-down: 10-min walk, full-body mobility, hydration + electrolytes.
+
+
+
+
+SUNDAY — REST + MOBILITY
+   20–30 min mobility (hips, T-spine, shoulders, ankles)
+
+   Easy outdoor walk, 30–45 min
+
+   Sleep priority — in bed early
+
+   No lifting, no hard conditioning. Recovery is training.
+
+
+
+
+<a name="gtg"></a>
+
+
+5. Daily Grease-the-Groove Pull-ups
+Goal: accumulate quality reps without fatigue.
+
+Rules:
+
+   Never to failure. If your max is 10, do 3–5 reps per set.
+   5–8 sets spread across the day — morning, before meals, end of day.
+
+   Total: 20–40 reps daily.
+
+   Skip on Friday (pull day).
+
+   Take Sunday off.
+
+If you don’t have a pull-up bar (alternatives):
+
+   Inverted rows on a sturdy table
+
+   Bodyweight rows on a low bar
+
+   Towel rows (towel over door)
+
+   Band pull-aparts (50/day)
+
+   Scapular pulls on any bar
+
+Within 8 weeks, expect your max pull-up count to jump 30–50%.
+
+
+
+
+<a name="scaling"></a>
+
+
+6. Scaling by Experience Level
+
+Beginner (new to lifting or conditioning, < 6 months consistent training)
+   Only 4 training days for first 4 weeks: Mon legs, Wed push, Fri pull, Sat light ruck (3
+   miles, 20 lbs)
+
+   Main lifts at 3 sets instead of 4
+
+   Thursday zone 2: 30 min instead of 45–60
+
+   Skip intervals until Week 5
+
+   Saturday circuit: half volume (25 push-ups, 12 pull-ups, 50 squats, 25 sit-ups)
+
+   Build for 4 weeks before using the full template
+
+
+Intermediate (6 months – 2 years consistent training)
+   Follow the program as written.
+
+   Rucks: 6–8 miles at 35 lbs on Saturday.
+Advanced (2+ years consistent, solid base)
+   Saturday ruck: 12 miles with 45–50 lbs (actual Ranger School standard)
+
+   Add second zone 2 session Sunday morning (30 min easy)
+
+   Thursday: extend zone 2 to 75–90 min every other week
+
+   Add weighted vest to daily grease-the-groove pull-ups
+
+   Consider one extra movement per main lift (5×5 strength block before hypertrophy)
+
+
+
+
+<a name="nutrition"></a>
+
+
+7. Nutrition
+
+ Macro          Target                                   Sources
+
+                                                         Chicken, beef, fish, eggs, Greek
+ Protein        1g per lb bodyweight daily
+                                                         yogurt, whey, cottage cheese
+
+                                                         Rice, oats, potatoes, fruit, pasta,
+ Carbs          Moderate–high on training days
+                                                         bread
+
+                                                         Olive oil, avocado, eggs, fatty fish,
+ Fats           ~25–30% of calories
+                                                         nuts
+
+                +300–500 over maintenance for
+ Calories                                                Track for 2 weeks to find baseline
+                size; maintenance for recomp
+
+ Water          Half bodyweight in ounces, minimum       More on ruck/zone 2 days
+
+                                                         LMNT-style mix OR salt food +
+ Electrolytes   On long conditioning days
+                                                         potassium
+
+
+Sample training day (200 lb male, ~3500 cal):
+
+   Breakfast: 4 eggs, 1 cup oats, 1 banana, coffee
+
+   Lunch: 8 oz chicken, 1.5 cups rice, vegetables, olive oil
+
+   Pre-workout: Apple + whey shake
+
+   Post-workout: Whey + rice cakes or banana
+
+   Dinner: 8 oz beef or salmon, potato, vegetables
+   Before bed: Greek yogurt + nuts
+
+Ritchson himself eats around 4,500 cal on heavy training days. You probably don’t need that
+much. Track for 2 weeks to find your number.
+
+
+
+
+<a name="recovery"></a>
+
+
+8. Recovery & Sleep
+Sleep 7–9 hours. The actual cheat code. 6 hours = no program works.
+
+Other priorities:
+
+   Sunday full rest, non-negotiable
+
+   Deload every 5–6 weeks (40% less weight, same movements, one week)
+
+   Sore 3+ days? Pull back 10%
+
+   Resting HR trending up 5+ bpm for a week? You’re overreaching — extra rest day
+
+   10 min mobility after every workout (not optional — it’s injury insurance)
+
+Recovery signals to track weekly:
+
+
+  Signal                     Good                        Red flag
+
+  Resting HR (morning)       Stable or trending down     Up 5+ bpm for a week
+
+  Sleep quality              7–9 hrs, feel rested        <6 hrs or waking frequently
+
+  Mood                       Steady, motivated           Irritable, dreading workouts
+
+  Appetite                   Normal or elevated          Suppressed for several days
+
+  Performance                Progressing or steady       Weights dropping for 2+ sessions
+
+  Joint pain                 Mild or absent              Sharp or persistent
+
+
+Multiple red flags = extra rest day or early deload.
+
+
+
+
+<a name="grit"></a>
+9. The Grit Protocol
+Grit is trained the same way as strength: small, specific, repeatable reps.
+
+
+Daily (every day, non-negotiable)
+Morning (5 min):
+
+   Write ONE specific promise for the day (“I will do X at Y time”)
+
+   State your identity sentence (“I am someone who ____”)
+
+Throughout the day:
+
+   Cold finish on every shower (last 60 sec on cold)
+
+   One chosen hard thing (see Section 10)
+
+   Self-talk check: swap “I can’t” for operational language (“next rep,” “one more”)
+
+Evening (3 min):
+
+   Did I keep my promise? (Y/N)
+
+   What was my hard thing today?
+
+   Where did I break — and what triggered it?
+
+
+Weekly
+Sunday review (15 min):
+
+1. Promise rate: how many days did I keep my daily promise? (Target: 6/7)
+
+2. Pattern: what did broken promises have in common?
+
+3. Win of the week: one specific moment I pushed through when I didn’t want to
+
+4. Next week’s one focus: one thing I’ll do differently
+
+Sunday planning:
+
+   Write the week’s promises in advance
+
+   Pre-commit to Saturday’s Grit Day
+
+   Identify the day most likely to break; make a specific plan for it
+
+
+Every 4 weeks
+   Re-read all four weekly reviews
+
+   What’s changed? What hasn’t?
+
+   Update identity statement if needed
+
+   Add one new hard thing to the menu
+
+
+
+
+<a name="hardthing"></a>
+
+
+10. The Hard Thing Menu
+Rotate. Don’t do the same one every day.
+
+
+Physical (10 min or less)
+   Cold shower, 2+ minutes
+
+   Set to true failure (any lift, safely)
+
+   100 burpees for time
+
+   Walk outside in bad weather, 20 min, no phone
+
+   Last mile of a run at threshold pace
+
+   Fast from breakfast to lunch (skip one meal intentionally)
+
+   5 min plank (broken as needed)
+
+   Max push-ups in 2 min
+
+
+Mental
+   20 min focused work, phone in another room
+
+   Read 10 pages of something hard (not fiction, not your field)
+
+   Sit still for 10 min doing nothing — no phone, no music
+
+   Write for 10 min without editing
+
+   Do a task you’ve been putting off for 2+ weeks
+
+   Learn something you’re bad at for 20 min
+
+
+Social / emotional
+   Have the conversation you’ve been avoiding
+
+   Send the message you’ve been drafting
+
+   Ask for something you’re afraid to ask for
+
+   Admit you were wrong about something, out loud, to someone
+
+   Give a sincere compliment to someone you don’t know well
+
+   Sit with an uncomfortable emotion for 10 min without distracting
+
+The rule: It has to be chosen and uncomfortable. If it’s easy today, level it up tomorrow.
+
+
+
+
+<a name="selftalk"></a>
+
+
+11. Self-Talk Scripts
+Memorize these. Use them under load.
+
+
+  Situation                                     Script
+
+  Rep count says stop                           “One more. Just one. Then decide.”
+
+  Workout feels impossible before starting      “I don’t have to finish it. I just have to start it.”
+
+  Mile 6 of 10 with loaded pack                 “Next pole. Just the next pole.”
+
+  Motivation is gone                            “Motivation isn’t coming. Go anyway.”
+
+  You’ve broken a promise                       “That was one. The next one is separate.”
+
+  In the middle of a hard set                   “This is the rep. This one. Right now.”
+
+  Want to skip the workout                      “The schedule is the training. Go.”
+
+  Zone 2 feels boring                           “Boring is the work. Do the work.”
+
+
+
+
+<a name="tracking"></a>
+
+
+12. Tracking Tables
+Daily log (2 min/day)
+
+ Field                                        Entry
+
+ Date
+
+ Morning promise
+
+ Chosen hard thing
+
+ Promise kept?                                Y/N
+
+ Hard thing done?                             Y/N
+
+ Workout as scheduled?                        Y / N / Rest day
+
+ Where I broke
+
+ Trigger
+
+ Sleep last night (hrs)
+
+ Energy (1–10)
+
+ Morning resting HR
+
+
+
+Weekly workout log — Sample template
+Week of: __________
+
+
+ Day                      Planned   Actual   Notes (weights, reps, how it felt)
+
+ Mon — Legs
+
+ Tue — Intervals + Core
+
+ Wed — Push
+
+ Thu — Zone 2
+
+ Fri — Pull + Carries
+
+ Sat — Grit Day
+
+ Sun — Rest + Mobility
+Main lift tracker (autoregulated progression)
+
+                   Current working     Top of rep       All sets cleanly at      Next session
+ Lift
+                   weight              range            top? (Y/N)               target
+
+ Back squat                            6
+
+ Bench
+                                       6
+ press
+
+ Deadlift                              5
+
+ Overhead
+                                       8
+ press
+
+ Barbell row                           8
+
+ Weighted
+                                       8
+ pull-up
+
+
+
+Ruck progression tracker
+
+ Week          Distance       Weight           Pace (min/mile)          How it felt (1–10)
+
+ 1
+
+ 2
+
+ 3
+
+ 4
+
+ 5
+
+ 6
+
+
+
+Baseline fitness test (every 4 weeks)
+
+ Test                                Week 0          Week 4          Week 8        Week 12
+
+ 1-mile run time
+
+ Max push-ups in 2 min
+
+ Max strict pull-ups
+  2-mile ruck time (25 lbs)
+
+  Resting HR (morning)
+
+  Bodyweight
+
+  Waist (navel)
+
+
+
+Weekly grit scorecard
+
+             Promises           Hard things          Workouts                 Biggest    Biggest
+  Week
+             kept (X/7)         done (X/7)           completed (X/6)          win        break
+
+  1
+
+  2
+
+  3
+
+  4
+
+
+
+
+<a name="return"></a>
+
+
+13. Return Protocol (When You Fail)
+You will fail. Plan for it. The rule: Never miss twice.
+
+
+  What
+                        What to do
+  happened
+
+  Missed a              Do the next one as scheduled. Don’t “make it up.” Don’t restart. Just don’t
+  workout               miss the next.
+
+  Broke your
+                        Note it in the log. Make a new promise for tomorrow. Keep it.
+  promise
+
+  Bad week              The Sunday review is more important, not less. Don’t skip it.
+
+  Off 1 week            Resume at current weights. Expect a rough first session.
+
+  Off 2–3 weeks         Restart at 80% of last weights. Rebuild for 1 week.
+  Off 4+ weeks           Restart at 70%. Rebuild for 2 weeks. Don’t ego-lift back.
+
+  Injured                See a physio. Work around it. Never “train through” sharp pain.
+
+  Sick                   Rest until 24h symptom-free. Resume at 80% for 2–3 days.
+
+
+The spiral is the enemy, not the miss. One skipped day is noise. Two is a pattern. Three is
+a new habit. Kill it at one.
+
+
+
+
+<a name="equipment"></a>
+
+
+14. Equipment Guide
+
+Must-have (priority order)
+
+  Item                         Cost         Why
+
+  Rucksack + weight            $60–         GoRuck, 5.11, or surplus pack. Load with plates, sand, or
+  plates                       150          bricks wrapped in towels.
+
+  Doorway pull-up bar          $30          Essential for daily grease-the-groove.
+
+  Jump rope                    $15          Best conditioning tool per dollar that exists.
+
+  Heart rate monitor                        Makes zone 2 actually work. Without this, most people
+                               $50
+  (chest strap)                             ride “easy” days too hard.
+
+
+
+Nice-to-have
+
+  Item                                Cost              Why
+
+  Ab wheel                            $15               Brutal core work.
+
+  Resistance bands                    $20               Warm-ups, mobility, travel workouts.
+
+  Foam roller                         $25               Recovery.
+
+  Kettlebell (1 heavy)                $50–80            Swings, goblet squats, carries at home.
+
+  Adjustable dumbbells                $200–400          Travel/home days. Big unlock.
+
+  Weighted vest (20–40 lb)            $80–150           Progression for pull-ups and push-ups.
+ Sandbag                          $40–100         Loading variety for rucking prep and carries.
+
+
+
+Skip (for now)
+     Fancy recovery gadgets (massage guns, compression boots) — sleep first
+
+     Expensive supplements beyond whey and creatine
+
+     Treadmill/bike at home (gym has one)
+
+
+
+
+<a name="books"></a>
+
+
+15. Book Recommendations
+
+Start here (reading order matters)
+
+ #      Book         Author         Why
+
+        Atomic       James          Builds the framework. Identity-based change, small wins
+ 1
+        Habits       Clear          compound. The foundation.
+
+        Can’t        David          Lights the fire. Callused mind, 40% rule. Read once, don’t
+ 2
+        Hurt Me      Goggins        live in it.
+
+        The War      Steven         Names the enemy. “Resistance” — the voice that talks you
+ 3
+        of Art       Pressfield     out of hard things.
+
+
+
+Deeper layer (after you’ve done the first three)
+
+ Book                  Author          Why
+
+ Discipline Equals     Jocko
+                                       Field manual style. Audiobook is better — Jocko reads it.
+ Freedom               Willink
+
+                       Angela          The actual research. Studied West Point cadets and
+ Grit
+                       Duckworth       Green Beret selection.
+
+ Man’s Search for      Viktor          Not a fitness book. Deepest thing ever written on
+ Meaning               Frankl          enduring suffering with meaning.
+
+ The Obstacle Is       Ryan
+                                       Stoic philosophy for modern use. Short, practical.
+ the Way               Holiday
+                        Cal
+ Deep Work                             Grit for the mind. Focused work as the trainable skill.
+                        Newport
+
+ Extreme                Willink &      SEAL leadership principles. Taking responsibility as a
+ Ownership              Babin          discipline.
+
+
+
+Training-specific (optional but useful)
+
+ Book                  Author       Why
+
+ Starting              Mark         The bible of barbell technique. Read if your squat/deadlift
+ Strength              Rippetoe     form is shaky.
+
+ The Ranger
+                       US Army      Free PDF. Actual military source document.
+ Handbook
+
+                                    Programming for hybrid strength + endurance athletes.
+ Tactical Barbell      K. Black
+                                    Closest to this protocol.
+
+
+Don’t get stuck reading about grit instead of training it. That’s its own kind of avoidance.
+Three books max before you’ve trained for 3 months.
+
+
+
+
+<a name="timeline"></a>
+
+
+16. Timeline: What to Expect
+
+ Phase      Physical                                     Mental
+
+ Weeks      Sore everywhere. Everything feels hard.      Feels performative. You’ll forget some
+ 1–2        Weights feel heavy. Ruck destroys you.       days. Log is half-empty. Normal.
+
+                                                         Cold shower stops feeling big. You
+ Weeks      Soreness normalizes. Main lifts moving
+                                                         hesitate less before workouts. Log
+ 3–4        up. Ruck pace improving.
+                                                         becomes automatic.
+
+            Visible changes start. Endurance             You catch self-talk in real time. Push
+ Weeks
+            notably better. Zone 2 HR dropping at        through workouts you would’ve
+ 5–8
+            same pace.                                   skipped a month ago.
+
+            Strength numbers up 15–25%. Ruck
+ Weeks                                                   Identity feels real, not aspirational.
+            distance extending easily. Body
+ 9–12                                                    Hard things done without psyching up.
+            composition changing.
+ Month      Former “hard” is now easy. Need new        “Working on grit” becomes “how you
+ 6+         challenges.                                operate.” Scale has shifted.
+
+
+
+
+<a name="onboarding"></a>
+
+
+17. First 2-Week Onboarding Checklist
+
+Week 1
+   Buy rucksack, pull-up bar, HR monitor
+
+   Baseline test day: 1-mile run time, max push-ups in 2 min, max pull-ups, ruck pace at 25
+   lbs for 2 miles
+
+   Weigh yourself. Measure waist at navel. Photo in same lighting.
+
+   Write your identity sentence. One. Same one for at least 30 days.
+
+   Hit all 6 training days (or 4 if beginner)
+
+   Start grease-the-groove pull-ups daily
+
+   Log every workout — weights, reps, how it felt
+
+   Start daily log (morning promise, evening 3 questions)
+
+
+Week 2
+   Add weight where you hit top of rep range cleanly
+
+   Sleep 7+ hours every night
+
+   Hit protein target 6 of 7 days
+
+   First real zone 2 session with HR monitor
+
+   First Sunday review — honest one
+
+   Buy first recommended book. Start reading.
+
+   Identify the day most likely to break next week. Plan for it.
+
+
+Ongoing
+   Reassess baselines every 4 weeks
+   Deload every 5–6 weeks
+
+   Monthly: re-read all 4 weekly reviews
+
+   If numbers aren’t moving after 4 weeks, audit sleep and food first — not the program
+
+
+
+
+The Uncomfortable Truth
+None of this is secret. None of it is complicated.
+
+People who seem to have inhuman willpower aren’t using different techniques — they’ve just
+been doing these boring things consistently for years.
+
+There’s no hack. There’s no shortcut. There’s just today’s rep. Do it. Then do tomorrow’s.
+
+The first one is the hardest.
+

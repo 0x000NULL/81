@@ -1,0 +1,238 @@
+name: WarMachine
+
+options:
+  bundleIdPrefix: com.warmachine
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: true
+  xcodeVersion: "15.4"
+  defaultConfig: Debug
+  groupSortPosition: top
+  transitivelyLinkDependencies: true
+
+attributes:
+  ORGANIZATIONNAME: "War Machine"
+  BuildIndependentTargetsInParallel: YES
+
+settings:
+  base:
+    SWIFT_VERSION: "5.10"
+    # EDIT THIS before first build — your paid Apple Developer team ID.
+    # Find it at https://developer.apple.com/account under Membership → Team ID.
+    DEVELOPMENT_TEAM: ""
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    SWIFT_STRICT_CONCURRENCY: targeted
+    CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED: YES
+    CLANG_WARN_DOCUMENTATION_COMMENTS: YES
+    GCC_TREAT_WARNINGS_AS_ERRORS: NO
+    SWIFT_TREAT_WARNINGS_AS_ERRORS: NO
+  configs:
+    Debug:
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
+      GCC_PREPROCESSOR_DEFINITIONS: "DEBUG=1 $(inherited)"
+      SWIFT_OPTIMIZATION_LEVEL: "-Onone"
+      ONLY_ACTIVE_ARCH: YES
+      DEBUG_INFORMATION_FORMAT: dwarf
+    Release:
+      SWIFT_COMPILATION_MODE: wholemodule
+      SWIFT_OPTIMIZATION_LEVEL: "-O"
+      DEBUG_INFORMATION_FORMAT: "dwarf-with-dsym"
+      VALIDATE_PRODUCT: YES
+
+# ─────────────────────────────────────────────────────────────
+# TARGETS
+# ─────────────────────────────────────────────────────────────
+
+targets:
+
+  # Main iOS application
+  WarMachine:
+    type: application
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: WarMachine
+        excludes:
+          - "Resources/Info.plist"
+          - "Resources/WarMachine.entitlements"
+        optional: true
+      - path: Shared
+        optional: true
+    settings:
+      base:
+        PRODUCT_NAME: "War Machine"
+        PRODUCT_BUNDLE_IDENTIFIER: com.warmachine.app
+        TARGETED_DEVICE_FAMILY: "1"                       # iPhone only
+        SUPPORTS_MACCATALYST: NO
+        SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD: NO
+        SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD: NO
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
+        INFOPLIST_KEY_UIStatusBarStyle: UIStatusBarStyleLightContent
+        INFOPLIST_KEY_UIUserInterfaceStyle: Dark
+        CODE_SIGN_STYLE: Automatic
+    info:
+      path: WarMachine/Resources/Info.plist
+      properties:
+        CFBundleDisplayName: War Machine
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleName: $(PRODUCT_NAME)
+        LSRequiresIPhoneOS: true
+        ITSAppUsesNonExemptEncryption: false
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+          UIImageName: ""
+        UIRequiresFullScreen: true
+        UIStatusBarStyle: UIStatusBarStyleLightContent
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIUserInterfaceStyle: Dark
+        UIViewControllerBasedStatusBarAppearance: true
+        # HealthKit
+        NSHealthShareUsageDescription: "War Machine reads your resting heart rate, heart rate variability, sleep, and bodyweight to track recovery and autoregulate training."
+        NSHealthUpdateUsageDescription: "War Machine saves completed workouts to your Health app."
+        # Location (for ruck GPS)
+        NSLocationWhenInUseUsageDescription: "Used to record route and distance during rucks."
+        NSLocationAlwaysAndWhenInUseUsageDescription: "Used to record route and distance during rucks even when the screen is off."
+        # Motion (optional, for pedometer context)
+        NSMotionUsageDescription: "Used to capture step and distance context during outdoor sessions."
+        # Background modes for ruck tracking + scheduled tasks
+        UIBackgroundModes:
+          - location
+          - processing
+          - fetch
+        UIFileSharingEnabled: false
+        LSSupportsOpeningDocumentsInPlace: false
+    entitlements:
+      path: WarMachine/Resources/WarMachine.entitlements
+      properties:
+        com.apple.developer.healthkit: true
+        com.apple.developer.healthkit.access: []
+        com.apple.security.application-groups:
+          - group.com.warmachine.app
+    dependencies:
+      - target: GtgWidget
+        embed: true
+        codeSign: true
+      - sdk: HealthKit.framework
+
+  # Widget extension — GTG pull-up counter on home/lock screen
+  GtgWidget:
+    type: app-extension
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: GtgWidget
+        excludes:
+          - "Info.plist"
+          - "GtgWidget.entitlements"
+        optional: true
+      - path: Shared
+        optional: true
+    settings:
+      base:
+        PRODUCT_NAME: "GtgWidget"
+        PRODUCT_BUNDLE_IDENTIFIER: com.warmachine.app.gtgwidget
+        TARGETED_DEVICE_FAMILY: "1"
+        SKIP_INSTALL: YES
+        CODE_SIGN_STYLE: Automatic
+    info:
+      path: GtgWidget/Info.plist
+      properties:
+        CFBundleDisplayName: "War Machine GTG"
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        CFBundleName: $(PRODUCT_NAME)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+    entitlements:
+      path: GtgWidget/GtgWidget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - group.com.warmachine.app
+
+  # Unit tests — Swift Testing (@Test) framework
+  WarMachineTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: WarMachineTests
+        optional: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.warmachine.app.tests
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_STYLE: Automatic
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/War Machine.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/War Machine"
+    dependencies:
+      - target: WarMachine
+
+  # UI tests — XCUITest
+  WarMachineUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    deploymentTarget: "17.0"
+    sources:
+      - path: WarMachineUITests
+        optional: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.warmachine.app.uitests
+        GENERATE_INFOPLIST_FILE: YES
+        CODE_SIGN_STYLE: Automatic
+        TEST_TARGET_NAME: WarMachine
+    dependencies:
+      - target: WarMachine
+
+# ─────────────────────────────────────────────────────────────
+# SCHEMES
+# ─────────────────────────────────────────────────────────────
+
+schemes:
+
+  WarMachine:
+    build:
+      parallelizeBuild: true
+      buildImplicitDependencies: true
+      targets:
+        WarMachine: all
+        GtgWidget: all
+        WarMachineTests: [test]
+        WarMachineUITests: [test]
+    run:
+      config: Debug
+      environmentVariables:
+        OS_ACTIVITY_MODE: ""
+    test:
+      config: Debug
+      gatherCoverageData: true
+      coverageTargets:
+        - WarMachine
+      targets:
+        - name: WarMachineTests
+          parallelizable: true
+          randomExecutionOrder: true
+        - name: WarMachineUITests
+          parallelizable: false
+          randomExecutionOrder: false
+    profile:
+      config: Release
+    analyze:
+      config: Debug
+    archive:
+      config: Release
+      revealArchiveInOrganizer: true
+
+  GtgWidget:
+    build:
+      targets:
+        GtgWidget: all
+    run:
+      config: Debug
