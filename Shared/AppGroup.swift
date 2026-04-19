@@ -1,7 +1,7 @@
 import Foundation
 
 enum AppGroup {
-    static let suiteName = "group.com.warmachine.app"
+    static let suiteName = "group.BA256NPZGA.warmachine"
 
     static var defaults: UserDefaults {
         UserDefaults(suiteName: suiteName) ?? .standard
