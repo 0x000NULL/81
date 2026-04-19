@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project identity
 
-User-facing name is **"81"**; internal target, scheme, Swift module, and bundle-ID prefix all stay **`WarMachine`**. Never rename the module — `@testable import WarMachine` and `PRODUCT_MODULE_NAME=WarMachine` depend on it (Swift rejects `81` as a module name because it starts with a digit). Bundle IDs stay `com.warmachine.*`. Deep-link scheme is `warmachine://`.
+User-facing name is **"81"**; internal target, scheme, and Swift module all stay **`WarMachine`**. Never rename the module — `@testable import WarMachine` and `PRODUCT_MODULE_NAME=WarMachine` depend on it (Swift rejects `81` as a module name because it starts with a digit). Bundle IDs are `com.ethanaldrich.81.*` (the original `com.warmachine.*` was unavailable on Apple's portal). Deep-link scheme is `warmachine://`.
 
 ## Project generation
 
@@ -43,11 +43,11 @@ Single-user iOS-only app (iPhone, iOS 17.4+). **Zero third-party runtime depende
 - **WarMachineTests** — Swift Testing (`@Test`), not XCTest. Organized under `EngineTests/`, `ProtocolTests/`, `ServiceTests/`.
 - **WarMachineUITests** — XCUITest.
 
-Both app and widget belong to App Group `group.com.warmachine.app`.
+Both app and widget belong to App Group `group.BA256NPZGA.warmachine`.
 
 ### Data flow: App Group is load-bearing
 
-- **SwiftData store** lives in the App Group container at `group.com.warmachine.app/81.store` (see `Models/ModelContainer+Setup.swift`). Falls back to default store only if the App Group container is unavailable. Do not change the store path without a migration plan — it's the user's entire workout/journal/prayer history.
+- **SwiftData store** lives in the App Group container at `group.BA256NPZGA.warmachine/81.store` (see `Models/ModelContainer+Setup.swift`). Falls back to default store only if the App Group container is unavailable. Do not change the store path without a migration plan — it's the user's entire workout/journal/prayer history.
 - **Widget snapshot** lives in App Group `UserDefaults` under key `gtg.snapshot.v1` (`Shared/AppGroup.swift`, `Shared/SharedModels.swift`). The widget reads the snapshot; the app writes it after every GTG log. The widget does **not** touch SwiftData.
 - The `Shared/` folder contains only the code that must be accessible from both targets. Keep it minimal.
 

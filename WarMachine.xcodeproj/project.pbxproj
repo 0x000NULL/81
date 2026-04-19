@@ -754,19 +754,19 @@
 				ORGANIZATIONNAME = 81;
 				TargetAttributes = {
 					02B226BA8D0569EAC20EDE2E = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = BA256NPZGA;
 						ProvisioningStyle = Automatic;
 					};
 					7BE000819DCB09C97BC4CA58 = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = BA256NPZGA;
 						ProvisioningStyle = Automatic;
 					};
 					D88B74D15951392ABF79073B = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = BA256NPZGA;
 						ProvisioningStyle = Automatic;
 					};
 					D9F5BB5832319853F4C67033 = {
-						DevelopmentTeam = "";
+						DevelopmentTeam = BA256NPZGA;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 02B226BA8D0569EAC20EDE2E;
 					};
@@ -993,7 +993,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.warmachine.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ethanaldrich.81.app;
 				PRODUCT_MODULE_NAME = WarMachine;
 				PRODUCT_NAME = 81;
 				SDKROOT = iphoneos;
@@ -1016,7 +1016,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.warmachine.app.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ethanaldrich.81.app.tests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/81.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/81";
@@ -1035,7 +1035,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.warmachine.app.uitests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ethanaldrich.81.app.uitests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = WarMachine;
@@ -1079,7 +1079,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = BA256NPZGA;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -1119,7 +1119,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.warmachine.app.gtgwidget;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ethanaldrich.81.app.gtgwidget;
 				PRODUCT_NAME = GtgWidget;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1144,7 +1144,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.warmachine.app;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ethanaldrich.81.app;
 				PRODUCT_MODULE_NAME = WarMachine;
 				PRODUCT_NAME = 81;
 				SDKROOT = iphoneos;
@@ -1167,7 +1167,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.warmachine.app.uitests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ethanaldrich.81.app.uitests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = WarMachine;
@@ -1211,7 +1211,7 @@
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = BA256NPZGA;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -1254,7 +1254,7 @@
 					"@executable_path/Frameworks",
 					"@executable_path/../../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.warmachine.app.gtgwidget;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ethanaldrich.81.app.gtgwidget;
 				PRODUCT_NAME = GtgWidget;
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
@@ -1274,7 +1274,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.warmachine.app.tests;
+				PRODUCT_BUNDLE_IDENTIFIER = com.ethanaldrich.81.app.tests;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/81.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/81";

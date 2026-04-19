@@ -55,7 +55,7 @@ xcodebuild -scheme WarMachine -destination 'platform=iOS Simulator,name=iPhone 1
 
 ## Where data lives
 
-- SwiftData store is in the App Group container: `group.com.warmachine.app/81.store`.
+- SwiftData store is in the App Group container: `group.BA256NPZGA.warmachine/81.store`.
 - Shared by the main app and the GTG widget extension.
 - Daily GTG snapshot also cached in App Group UserDefaults for widget reads.
 
@@ -66,7 +66,7 @@ xcodebuild -scheme WarMachine -destination 'platform=iOS Simulator,name=iPhone 1
 
 ## Decisions I made that weren't specified
 
-- **Product name "81"** — user-facing only. Internal target / scheme / directory / Swift module all stay `WarMachine`. Bundle IDs stay `com.warmachine.*`. Rationale: preserve the pre-built `project.yml` structure with minimum churn; bundle IDs are opaque anyway.
+- **Product name "81"** — user-facing only. Internal target / scheme / directory / Swift module all stay `WarMachine`. Bundle IDs are `com.ethanaldrich.81.*` (originally `com.warmachine.*`, but that prefix wasn't available on Apple's developer portal). Rationale: preserve the pre-built `project.yml` structure with minimum churn; bundle IDs are opaque anyway.
 - **PRODUCT_MODULE_NAME set to `WarMachine` explicitly** — because Swift rejects `81` as a module name (starts with a digit), Xcode would auto-sanitize to `_81`; explicit override keeps `@testable import WarMachine` working.
 - **iOS 17.4 over 17.0** — the source prompt said 17.4+; `project.yml` shipped with 17.0. Bumped to 17.4 for SwiftData stability and Swift Testing availability.
 - **Ruck + Grit circuit as two linked HKWorkouts** — one `WorkoutSession` parent row in SwiftData, two HealthKit writes (hiking + HIIT).
