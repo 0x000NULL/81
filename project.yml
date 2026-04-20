@@ -17,7 +17,7 @@ attributes:
 
 settings:
   base:
-    SWIFT_VERSION: "5.10"
+    SWIFT_VERSION: "6.0"
     # EDIT THIS before first build — your paid Apple Developer team ID.
     # Find it at https://developer.apple.com/account under Membership → Team ID.
     DEVELOPMENT_TEAM: "BA256NPZGA"
