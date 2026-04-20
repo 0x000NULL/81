@@ -67,9 +67,21 @@ struct ExerciseCardView: View {
                 onCheckboxToggled: handleCheckbox,
                 onRequestEdit: { editingSet = $0 }
             )
-        case .cardioIntervals, .cardioSession, .ruck, .jumpRopeFinisher:
-            // Phase 2 / 3a will fill these in. For now show a legacy
-            // weight/reps logger so the screen isn't blank on these days.
+        case .cardioIntervals:
+            CardioIntervalLogger(
+                exercise: exercise,
+                spec: spec,
+                onCheckboxToggled: handleCheckbox
+            )
+        case .jumpRopeFinisher:
+            JumpRopeFinisherLogger(
+                exercise: exercise,
+                spec: spec,
+                onCheckboxToggled: handleCheckbox
+            )
+        case .cardioSession, .ruck:
+            // Phase 3a fills these in. For now fall back to a weight/reps
+            // logger so the screen isn't blank on these days.
             SetLoggerView(
                 exercise: exercise,
                 spec: spec,
