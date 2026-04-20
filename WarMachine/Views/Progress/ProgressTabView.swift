@@ -12,7 +12,7 @@ struct ProgressTabView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: Theme.Spacing.section) {
                     NavigationLink {
-                        TimelineView()
+                        TrainingTimelineView()
                     } label: {
                         Card {
                             HStack {

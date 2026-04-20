@@ -9,7 +9,7 @@ struct ExportServiceTests {
 
     @Test("round-trip covers schema 1.3 fields (birthDate, book progress, memorization)")
     func roundTrip() async throws {
-        let schema = Schema(versionedSchema: SchemaV2.self)
+        let schema = Schema(versionedSchema: SchemaV3.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: schema, configurations: [config])
         let ctx = ModelContext(container)
@@ -41,7 +41,7 @@ struct ExportServiceTests {
         try ctx.save()
 
         let payload = try ExportService.buildPayload(context: ctx)
-        #expect(payload.schemaVersion == "1.3-christian-journal")
+        #expect(payload.schemaVersion == "1.4-workout-v2")
         #expect(payload.profile?.bodyweightLb == 200)
         #expect(payload.profile?.birthDate == dob)
         #expect(payload.favorites.count == 1)
@@ -129,7 +129,7 @@ struct ExportServiceTests {
         #expect(decoded.favorites.first?.lastReviewedAt == nil)
 
         // Import into a fresh context — missing fields should default (0 for Ints, false for isMemorized).
-        let schema = Schema(versionedSchema: SchemaV2.self)
+        let schema = Schema(versionedSchema: SchemaV3.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: schema, configurations: [config])
         let ctx = ModelContext(container)
