@@ -19,22 +19,23 @@ struct PlateCalculatorTests {
         #expect(r.achievedLb == 95)
     }
 
-    @Test("225 lb with defaults → 45+25+20 per side — but 20 isn't in default set")
+    @Test("225 lb with defaults → greedy pulls two 45s per side")
     func twoTwentyFive() {
-        // Default plates lack a 20 lb, so expected per-side is [45, 25, 10, 10].
+        // Greedy with unlimited repeats picks the largest plate repeatedly
+        // before moving down; 90 per side = 45+45.
         let r = PlateCalculator.compute(targetLb: 225, barLb: 45)
-        #expect(r.perSide == [45, 25, 10, 10])
+        #expect(r.perSide == [45, 45])
         #expect(r.exact)
         #expect(r.achievedLb == 225)
     }
 
-    @Test("100 lb with defaults is not exact; below=95, above=105")
+    @Test("96 lb with defaults is not exact; below=95, above=100")
     func inexact() {
-        let r = PlateCalculator.compute(targetLb: 100, barLb: 45)
+        let r = PlateCalculator.compute(targetLb: 96, barLb: 45)
         #expect(!r.exact)
         #expect(r.achievedLb == 95)
         #expect(r.nearestBelow == 95)
-        #expect(r.nearestAbove == 100)  // 45 + 2 × 2.5 = 50
+        #expect(r.nearestAbove == 100)  // below + 2 × 2.5 lb plate
     }
 
     @Test("women's 35 lb bar, target 135 → 45+5 per side")

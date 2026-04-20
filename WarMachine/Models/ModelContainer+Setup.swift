@@ -96,14 +96,27 @@ enum SchemaV3: VersionedSchema {
 }
 
 enum WarMachineMigrationPlan: SchemaMigrationPlan {
+    // SchemaV1 is intentionally absent: its model graph is identical to
+    // SchemaV2 (V2 only added optional/defaulted fields, which resolve off
+    // the current model definitions), so NSStagedMigrationManager rejects
+    // a V1→V2 stage as a degenerate no-op when another stage is present.
     static var schemas: [any VersionedSchema.Type] {
-        [SchemaV1.self, SchemaV2.self, SchemaV3.self]
+        [SchemaV2.self, SchemaV3.self]
     }
 
     static var stages: [MigrationStage] {
+        // Use .custom (not .lightweight) so SwiftData takes the staged-
+        // migration path that tolerates adding a new @Relationship on an
+        // existing entity (WorkoutSession.warmUp) and a new @Model with
+        // @Attribute(.unique) (ExercisePRCache). Closures are nil — the
+        // actual schema delta is still inferred automatically.
         [
-            .lightweight(fromVersion: SchemaV1.self, toVersion: SchemaV2.self),
-            .lightweight(fromVersion: SchemaV2.self, toVersion: SchemaV3.self)
+            .custom(
+                fromVersion: SchemaV2.self,
+                toVersion: SchemaV3.self,
+                willMigrate: nil,
+                didMigrate: nil
+            )
         ]
     }
 }
@@ -113,6 +126,10 @@ final class AppModelContainer {
     static let shared = AppModelContainer()
 
     let container: ModelContainer
+    /// Non-nil when the real store failed to open — caller should surface
+    /// this to the user instead of presenting the normal UI, because the
+    /// container is a read-only in-memory fallback with no user data.
+    let launchError: String?
 
     private init() {
         let schema = Schema(versionedSchema: SchemaV3.self)
@@ -126,14 +143,29 @@ final class AppModelContainer {
             config = ModelConfiguration(schema: schema)
         }
         do {
+            // Deliberately no migrationPlan: SchemaV1/V2/V3 all reference
+            // the current live @Model classes, so they hash identically
+            // at runtime and NSStagedMigrationManager can't find a
+            // matching "from" schema for the on-disk store. Letting
+            // SwiftData do its default lightweight inference against
+            // SchemaV3 is the right behavior until we freeze per-version
+            // model snapshots.
             container = try ModelContainer(
                 for: schema,
-                migrationPlan: WarMachineMigrationPlan.self,
                 configurations: [config]
             )
+            launchError = nil
         } catch {
-            log.error("Fatal: failed to create ModelContainer: \(String(describing: error))")
-            fatalError("Could not create ModelContainer: \(error)")
+            let detail = String(reflecting: error)
+            print("ModelContainer init failed: \(detail)")
+            log.error("ModelContainer init failed: \(detail)")
+            let memoryConfig = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
+            do {
+                container = try ModelContainer(for: schema, configurations: [memoryConfig])
+            } catch {
+                fatalError("Fallback in-memory ModelContainer also failed: \(error)")
+            }
+            launchError = detail
         }
     }
 }

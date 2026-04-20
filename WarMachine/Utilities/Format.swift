@@ -75,9 +75,9 @@ enum Format {
             let load = set.loadLb.map { Int($0) } ?? 0
             let secs = set.durationSec ?? 0
             if secs > 0, mi > 0 {
-                let pace = Double(secs) / 60.0 / mi
+                let minPerMile = Double(secs) / 60.0 / mi
                 return String(format: "%.2f mi · %@ · %d lb",
-                              mi, pace(minPerMile: pace), load)
+                              mi, pace(minPerMile: minPerMile), load)
             }
             return String(format: "%.2f mi · %d lb", mi, load)
         }

@@ -1,7 +1,7 @@
 import SwiftUI
 import SwiftData
 
-struct TimelineView: View {
+struct TrainingTimelineView: View {
     @Query private var profiles: [UserProfile]
 
     private var profile: UserProfile? { profiles.first }
