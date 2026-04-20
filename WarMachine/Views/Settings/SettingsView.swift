@@ -89,6 +89,10 @@ struct SettingsView: View {
                     }
                 }
 
+                Section("Workout") {
+                    workoutSection
+                }
+
                 Section("State") {
                     if let p = profile {
                         Text("Bodyweight: \(Format.weight(p.bodyweightLb))")
@@ -186,6 +190,56 @@ struct SettingsView: View {
         }
     }
 
+    @ViewBuilder
+    private var workoutSection: some View {
+        if let p = profile {
+            HStack {
+                Text("Bar weight")
+                Spacer()
+                Picker("", selection: Binding(
+                    get: { p.preferredBarbellLb },
+                    set: { newVal in
+                        p.preferredBarbellLb = newVal
+                        try? context.save()
+                    }
+                )) {
+                    Text("45 lb").tag(45.0)
+                    Text("35 lb (women's)").tag(35.0)
+                    Text("55 lb (trap)").tag(55.0)
+                    Text("25 lb (EZ)").tag(25.0)
+                }
+                .labelsHidden()
+            }
+            NavigationLink {
+                PlateInventoryEditor(profile: p)
+            } label: {
+                HStack {
+                    Text("Plate inventory")
+                    Spacer()
+                    Text(p.availablePlatesLb.map { $0.truncatingRemainder(dividingBy: 1) == 0 ? "\(Int($0))" : String(format: "%.1f", $0) }.joined(separator: ", "))
+                        .font(.caption.monospacedDigit())
+                        .foregroundStyle(Theme.textSecondary)
+                }
+            }
+            Toggle("Live GPS ruck (beta)", isOn: Binding(
+                get: { p.liveGPSRuckEnabled },
+                set: { newVal in
+                    p.liveGPSRuckEnabled = newVal
+                    try? context.save()
+                }
+            ))
+            Button("Reset PR cache") {
+                resetPRCache()
+            }
+            .foregroundStyle(Theme.textSecondary)
+        }
+    }
+
+    private func resetPRCache() {
+        try? context.delete(model: ExercisePRCache.self)
+        try? context.save()
+    }
+
     private func saveTimes() {
         guard let profile else { return }
         profile.morningReminderHour = morningHour
@@ -245,6 +299,8 @@ struct SettingsView: View {
         try? context.delete(model: MeditationLog.self)
         try? context.delete(model: FavoriteVerse.self)
         try? context.delete(model: PrayerJournalEntry.self)
+        try? context.delete(model: WarmUpLog.self)
+        try? context.delete(model: ExercisePRCache.self)
         try? context.save()
         Task { await NotificationService.shared.cancelAll() }
     }

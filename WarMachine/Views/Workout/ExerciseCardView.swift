@@ -50,8 +50,7 @@ struct ExerciseCardView: View {
                 spec: spec,
                 multiplier: weightMultiplier,
                 onCheckboxToggled: handleCheckbox,
-                onRequestEdit: { editingSet = $0 },
-                onRequestPlateCalculator: { _ in }
+                onRequestEdit: { editingSet = $0 }
             )
         case .durationHold:
             DurationHoldLogger(

@@ -14,7 +14,6 @@ struct SetLoggerView: View {
     let multiplier: Double
     let onCheckboxToggled: (SetLog, Bool) -> Void
     let onRequestEdit: (SetLog) -> Void
-    let onRequestPlateCalculator: (Binding<Double>) -> Void
 
     @Environment(\.modelContext) private var context
     @Query private var sessions: [WorkoutSession]
@@ -47,9 +46,7 @@ struct SetLoggerView: View {
                     onEdit: { if let s = row.persistedSet { onRequestEdit(s) } },
                     onDelete: { deletePersistedSet(rowID: row.id) },
                     onSkip: { skip(rowID: row.id) },
-                    onTapWeightLabel: {
-                        onRequestPlateCalculator($row.weightLb)
-                    }
+                    rpe: $row.rpe
                 )
                 Divider().background(Theme.textSecondary.opacity(0.15))
             }
@@ -82,6 +79,7 @@ struct SetLoggerView: View {
         var persistedSet: SetLog?
         var hint: LastSessionHint?
         var showPRBadge: Bool
+        var rpe: Double?
     }
 
     private var kindsForLogger: SetRow.Kinds {
@@ -131,7 +129,8 @@ struct SetLoggerView: View {
                 isChecked: persisted?.isCompleted ?? false,
                 persistedSet: persisted,
                 hint: hint,
-                showPRBadge: !(persisted?.prKinds.isEmpty ?? true)
+                showPRBadge: !(persisted?.prKinds.isEmpty ?? true),
+                rpe: persisted?.rpe
             ))
         }
         rows = next
@@ -160,6 +159,7 @@ struct SetLoggerView: View {
             existing.weightLb = row.weightLb
             existing.reps = row.reps
             existing.setType = row.setType
+            existing.rpe = row.rpe
             existing.isCompleted = true
             existing.completedAt = .now
             try? context.save()
@@ -167,6 +167,7 @@ struct SetLoggerView: View {
         }
         let set = SetLog(setIndex: row.setNumber - 1, weightLb: row.weightLb, reps: row.reps)
         set.setType = row.setType
+        set.rpe = row.rpe
         set.isCompleted = true
         set.exercise = exercise
         context.insert(set)
@@ -223,7 +224,8 @@ struct SetLoggerView: View {
             isChecked: false,
             persistedSet: nil,
             hint: hint,
-            showPRBadge: false
+            showPRBadge: false,
+            rpe: nil
         ))
     }
 }

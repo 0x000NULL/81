@@ -27,6 +27,7 @@ struct DistanceRepsLogger: View {
         var persistedSet: SetLog?
         var hint: LastSessionHint?
         var roundIndex: Int?
+        var rpe: Double?
     }
 
     var body: some View {
@@ -55,7 +56,7 @@ struct DistanceRepsLogger: View {
                     onEdit: { if let s = row.persistedSet { onRequestEdit(s) } },
                     onDelete: { deletePersistedSet(rowID: row.id) },
                     onSkip: { skip(rowID: row.id) },
-                    onTapWeightLabel: {}
+                    rpe: $row.rpe
                 )
                 Divider().background(Theme.textSecondary.opacity(0.15))
             }
@@ -115,7 +116,8 @@ struct DistanceRepsLogger: View {
                     isChecked: persisted?.isCompleted ?? false,
                     persistedSet: persisted,
                     hint: hint,
-                    roundIndex: perSide ? r : nil
+                    roundIndex: perSide ? r : nil,
+                    rpe: persisted?.rpe
                 ))
             }
         }
@@ -145,6 +147,7 @@ struct DistanceRepsLogger: View {
             existing.loadLb = row.loadLb
             existing.reps = 1
             existing.setType = row.setType
+            existing.rpe = row.rpe
             existing.isCompleted = true
             existing.completedAt = .now
             try? context.save()
@@ -155,6 +158,7 @@ struct DistanceRepsLogger: View {
         set.loadLb = row.loadLb
         set.roundIndex = row.roundIndex
         set.setType = row.setType
+        set.rpe = row.rpe
         set.isCompleted = true
         set.exercise = exercise
         context.insert(set)

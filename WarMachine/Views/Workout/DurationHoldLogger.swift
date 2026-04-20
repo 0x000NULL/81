@@ -27,6 +27,7 @@ struct DurationHoldLogger: View {
         var persistedSet: SetLog?
         var hint: LastSessionHint?
         var roundIndex: Int?
+        var rpe: Double?
     }
 
     var body: some View {
@@ -55,7 +56,7 @@ struct DurationHoldLogger: View {
                     onEdit: { if let s = row.persistedSet { onRequestEdit(s) } },
                     onDelete: { deletePersistedSet(rowID: row.id) },
                     onSkip: { skip(rowID: row.id) },
-                    onTapWeightLabel: {}
+                    rpe: $row.rpe
                 )
                 Divider().background(Theme.textSecondary.opacity(0.15))
             }
@@ -111,7 +112,8 @@ struct DurationHoldLogger: View {
                     isChecked: persisted?.isCompleted ?? false,
                     persistedSet: persisted,
                     hint: hint,
-                    roundIndex: perSide ? r : nil
+                    roundIndex: perSide ? r : nil,
+                    rpe: persisted?.rpe
                 ))
             }
         }
@@ -139,6 +141,7 @@ struct DurationHoldLogger: View {
         if let existing = row.persistedSet {
             existing.durationSec = row.durationSec
             existing.setType = row.setType
+            existing.rpe = row.rpe
             existing.isCompleted = true
             existing.completedAt = .now
             try? context.save()
@@ -148,6 +151,7 @@ struct DurationHoldLogger: View {
         set.durationSec = row.durationSec
         set.roundIndex = row.roundIndex
         set.setType = row.setType
+        set.rpe = row.rpe
         set.isCompleted = true
         set.exercise = exercise
         context.insert(set)

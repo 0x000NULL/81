@@ -89,7 +89,7 @@ struct WorkoutPagerView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: Theme.Spacing.default) {
                 if let banner = modeBanner { banner }
-                WarmUpCard(routine: WarmUps.of(session.dayType), done: $warmUpDone)
+                WarmUpCard(routine: WarmUps.of(session.dayType), session: session, done: $warmUpDone)
                 travelModeCard
                 if let duration = restTimerDuration {
                     RestTimerView(duration: duration, onSkip: onSkipRest)

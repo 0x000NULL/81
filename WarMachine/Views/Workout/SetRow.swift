@@ -47,17 +47,49 @@ struct SetRow: View {
     let onEdit: () -> Void
     let onDelete: () -> Void
     let onSkip: () -> Void
-    let onTapWeightLabel: () -> Void
+
+    @State private var showingPlateCalc = false
+    @State private var showingRPEInput = false
+    @Binding var rpe: Double?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             topRow
             if !isChecked {
                 inputsRow
+                if showingRPEInput {
+                    rpeRow
+                }
             }
         }
         .padding(.vertical, 6)
         .opacity(setType == .warmup && isChecked ? 0.55 : 1.0)
+        .sheet(isPresented: $showingPlateCalc) {
+            PlateCalculatorSheet(targetLb: $weightLb)
+                .preferredColorScheme(.dark)
+        }
+    }
+
+    @ViewBuilder
+    private var rpeRow: some View {
+        HStack(spacing: 12) {
+            Text("RPE")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(Theme.textSecondary)
+            Slider(
+                value: Binding(
+                    get: { rpe ?? 7 },
+                    set: { rpe = $0 }
+                ),
+                in: 1...10,
+                step: 0.5
+            )
+            .tint(Theme.accent)
+            Text(rpe.map { String(format: "%.1f", $0) } ?? "—")
+                .font(.caption.monospacedDigit())
+                .foregroundStyle(Theme.textPrimary)
+                .frame(width: 32, alignment: .trailing)
+        }
     }
 
     @ViewBuilder
@@ -82,6 +114,17 @@ struct SetRow: View {
                     .buttonStyle(.plain)
                 }
                 Spacer()
+                if kinds.contains(.weight) || kinds.contains(.reps) {
+                    Button {
+                        showingRPEInput.toggle()
+                    } label: {
+                        Image(systemName: showingRPEInput ? "gauge.with.needle.fill" : "gauge.with.needle")
+                            .foregroundStyle(showingRPEInput ? Theme.accent : Theme.textSecondary)
+                            .frame(width: 32, height: 32)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel(showingRPEInput ? "Hide RPE" : "Add RPE")
+                }
             }
             checkbox
             SetTypeMenu(
@@ -99,7 +142,9 @@ struct SetRow: View {
         HStack(spacing: 16) {
             if kinds.contains(.weight) {
                 VStack(alignment: .leading, spacing: 4) {
-                    Button(action: onTapWeightLabel) {
+                    Button {
+                        if usesBarbell { showingPlateCalc = true }
+                    } label: {
                         HStack(spacing: 4) {
                             Text("Weight")
                                 .font(.caption)
