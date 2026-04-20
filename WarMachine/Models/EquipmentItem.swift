@@ -3,7 +3,7 @@ import SwiftData
 
 @Model
 final class EquipmentItem {
-    @Attribute(.unique) var name: String = ""
+    var name: String = ""
     var isMustHave: Bool = true
     var owned: Bool = false
     var approxCost: String?

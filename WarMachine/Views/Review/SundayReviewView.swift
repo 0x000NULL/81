@@ -23,13 +23,9 @@ struct SundayReviewView: View {
     }
 
     private var review: SundayReview {
-        if let existing = reviews.first(where: {
-            Calendar.current.isDate($0.weekStartDate, equalTo: weekStart, toGranularity: .weekOfYear)
-        }) { return existing }
-        let new = SundayReview(weekStartDate: weekStart)
-        context.insert(new)
+        let resolved = SundayReviewStore.findOrCreate(weekStartDate: weekStart, in: context)
         try? context.save()
-        return new
+        return resolved
     }
 
     var body: some View {

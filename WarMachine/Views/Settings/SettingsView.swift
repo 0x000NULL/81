@@ -124,6 +124,8 @@ struct SettingsView: View {
                     }
                 }
 
+                ICloudSyncSection()
+
                 Section("About") {
                     Button("The Uncomfortable Truth") {
                         showingAbout = true

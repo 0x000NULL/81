@@ -10,7 +10,7 @@ import SwiftData
 /// "Reset PR cache" Settings action.
 @Model
 final class ExercisePRCache {
-    @Attribute(.unique) var exerciseKey: String = ""
+    var exerciseKey: String = ""
     var bestEstimated1RMLb: Double?
     var bestSetVolumeLb: Double?
 

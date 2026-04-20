@@ -3,7 +3,7 @@ import SwiftData
 
 @Model
 final class BookProgress {
-    @Attribute(.unique) var title: String = ""
+    var title: String = ""
     var author: String = ""
     var isChristian: Bool = false
     var started: Bool = false

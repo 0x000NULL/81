@@ -53,7 +53,22 @@ Both app and widget belong to App Group `group.BA256NPZGA.warmachine`.
 
 ### Schema
 
-`SchemaV2: VersionedSchema` (`Models/ModelContainer+Setup.swift`) is the current schema and the single source of truth for model registration. **Any new `@Model` type must be added to `SchemaV2.models`** — otherwise queries silently return empty and writes crash at runtime. Current version identifier is `1.1.0`. `SchemaV1` (v1.0.0) is retained for migration only; `WarMachineMigrationPlan` declares the V1→V2 lightweight stage. Bump to a new `SchemaV3` + add another migration stage if you change existing model shapes again.
+`SchemaV4: VersionedSchema` (`Models/ModelContainer+Setup.swift`, version `1.3.0`) is the current schema and the single source of truth for model registration. **Any new `@Model` type must be added to `SchemaV4.models`** (which currently aliases `SchemaV3.models`) — otherwise queries silently return empty and writes crash at runtime.
+
+V4's only delta vs V3 is dropping `@Attribute(.unique)` from 8 models so the store can open under `NSPersistentCloudKitContainer` (CloudKit has no unique-constraint primitive). Uniqueness now lives in `Models/Stores/` — eight `findOrCreate` helpers (`GtgLogStore`, `DailyLogStore`, `SundayReviewStore`, `BookProgressStore`, `EquipmentStore`, `FavoritesStore`, `LiftProgressionStore`, `PRCacheStore`) that return the canonical row and merge any sync-collision duplicates inline (sum reps, MAX progress fields, OR booleans, prefer non-empty text, per-key MAX in JSON dicts). Every find-or-create write site routes through them — adding a new uniqueness key means adding a Store, not a `@Attribute(.unique)`.
+
+**`AppModelContainer` does NOT pass a `migrationPlan:` — this is deliberate.** `SchemaV1`/`V2`/`V3`/`V4` and `WarMachineMigrationPlan` still exist in the file, but they all reference the same live `@Model` classes, so each version hashes to the *current* model graph at runtime rather than a frozen snapshot. `NSStagedMigrationManager` rejects that (`loadIssueModelContainer`), which is what caused the crash-on-launch after the Phase 0 PR merge. Letting SwiftData do default lightweight inference against `SchemaV4` works and is how v1.0→v1.1→v1.3 shipped (the V3→V4 delta is a constraint relaxation, which lightweight inference handles cleanly). Don't re-enable the plan unless you're ready to freeze per-version model snapshots (separate namespaces, distinct `@Model` classes per version).
+
+`AppModelContainer` surfaces any container-open failure via `launchError: String?` and an in-memory fallback; `WarMachineApp` then shows a copyable `LaunchErrorView` instead of crashing. Keep that path intact — it's cheap insurance for the next migration footgun. The same path catches CloudKit attach failures (signed-out iCloud, missing container provisioning).
+
+### iCloud sync — two layers
+
+- **Live sync via `NSPersistentCloudKitContainer`.** `ModelConfiguration` is constructed with `cloudKitDatabase: .private(AppModelContainer.cloudKitContainerID)` when the user has not opted out via the `cloudkit.sync.enabled` UserDefaults key (default ON). Container ID is `iCloud.com.ethanaldrich.81.app` and must be provisioned on developer.apple.com plus deployed to Production via CloudKit Dashboard before any TestFlight build. `CloudKitStatusService` (`@Observable @MainActor` singleton) wraps `CKContainer.accountStatus` and `NSPersistentCloudKitContainer.eventChangedNotification` for the Settings UI. Toggle changes require an app relaunch (the container is configured once at init).
+- **Defense-in-depth dated JSON snapshots.** `CloudBackupService.writeDailyBackupIfNeeded(...)` runs from `WarMachineApp.onLaunch`, debounced to one write per calendar day, retains the most recent 7 in `iCloud.com.ethanaldrich.81.app/Documents/backup-YYYY-MM-DD.json`. Reuses `ExportService.buildPayload` end-to-end. Settings → iCloud Sync → Backups… surfaces a restore sheet that delegates to `ExportService.importPayload` (wipes-and-loads).
+
+### AppIntents (Siri Shortcuts)
+
+`Intents/LogGtgSetIntent.swift` + `Intents/WarMachineShortcuts.swift` register the "Log GTG Set" Shortcut with Siri. The intent runs without opening the app (`openAppWhenRun = false`), prompts for `reps`, and delegates to `LogGtgSetIntent.logSet(reps:in:)` which is the testable pure helper. Adding a new AppIntent: drop into `Intents/`, add it to `WarMachineShortcuts.appShortcuts`, regenerate. Phrases use `\(.applicationName)` so they pick up the bundle display name ("81").
 
 ### Layered architecture
 
@@ -63,9 +78,9 @@ Views ─────────────▶ Engines (pure logic) ──▶ 
    └───────▶ Services (HealthKit, Location, Notifications, RestTimer, Export)
 ```
 
-- **`Engine/`** — pure, synchronous decision logic with no I/O. `TodayEngine`, `ProgressionEngine`, `DeloadEngine`, `ReturnEngine` (six-branch policy for gaps / injury / sickness / travel), `VerseEngine` (deterministic by date). Tests live here. Keep engines free of SwiftData `ModelContext` — pass in the data they need.
+- **`Engine/`** — pure, synchronous decision logic with no I/O. `TodayEngine`, `ProgressionEngine`, `DeloadEngine`, `ReturnEngine` (six-branch policy for gaps / injury / sickness / travel), `VerseEngine` (deterministic by date), `PRDetector` + `PRDetectorBridge` (six `PRKind`s; writes through `ExercisePRCache`), `PlateCalculator` (greedy with unlimited repeats — defaults include 2.5 lb), `LastSessionHintProvider`, `LoggerKindBackfill` (runs once at launch to reclassify legacy `ExerciseLog` rows). Tests live here. Keep engines free of SwiftData `ModelContext` — pass in the data they need.
 - **`Services/`** — side-effectful boundaries. `HealthKitService` is an actor; `RestTimerService` is a MainActor singleton (note in `FUTURE.md`: tests serialized as a consequence). Sleep aggregation intentionally sums only `.asleepCore + .asleepREM + .asleepDeep` — do not include `.inBed`/`.awake`.
-- **`Protocol/`** — static reference data (exercises, schedule, scaling, verses, prayers, starting weights, etc.). Treat as read-only constants.
+- **`Protocol/`** — static reference data (exercises, schedule, scaling, verses, prayers, starting weights, interval modalities, etc.). Treat as read-only constants. `LoggerClassification.kind(for: exerciseKey)` is the mapping from `exerciseKey` → `LoggerKind` that drives which logger view the Workout tab renders; keep it authoritative.
 - **`Views/`** organized by flow: `Onboarding/`, `Main/`, `Workout/`, `Log/`, `Review/`, `Library/`, `Progress/`, `Settings/`, `Components/`.
 - **`App/`** — `WarMachineApp.swift` entrypoint, `AppRouter.swift` top-level navigation, `DeepLink.swift` for URL-scheme handling. On launch, `TodayEngine.cleanupStaleSessions` runs to clean abandoned `WorkoutSession` rows.
 
@@ -75,7 +90,7 @@ Views ─────────────▶ Engines (pure logic) ──▶ 
 
 ### Export / import
 
-`ExportService` writes schema version `"1.2-christian-journal"` covering every model. Import **wipes current data** before loading. When adding a new `@Model`, update export/import round-trip and the corresponding test in `ServiceTests/ExportServiceTests.swift`.
+`ExportService` writes schema version `"1.4-workout-v2"` (see `ExportPayload.currentSchemaVersion`) covering every model, including `ExercisePRCache` and `WarmUpLog`. Import **wipes current data** before loading. When adding a new `@Model`, update export/import round-trip and the corresponding test in `ServiceTests/ExportServiceTests.swift` (and the schema-version test in `ExportSchemaV14Tests.swift`).
 
 ## Conventions worth knowing
 
@@ -84,6 +99,7 @@ Views ─────────────▶ Engines (pure logic) ──▶ 
 - iPhone only — `TARGETED_DEVICE_FAMILY=1`, no Catalyst, no iPad.
 - Privacy manifest reasons are declared: `CA92.1` (UserDefaults/App Group), `C617.1` (FileTimestamp during export), `E174.1` (DiskSpace during export). Adding APIs in those categories? Keep the manifest in sync.
 - `@Attribute(.unique)` is used instead of the `#Unique` macro (macro is iOS 18; target is 17.4).
+- Avoid type names that shadow SwiftUI (`TimelineView`, `Label`, etc.). A local `TimelineView` tripped compile in files with `@Query` recently — prefer prefixed names (`TrainingTimelineView`).
 
 ## Additional context
 

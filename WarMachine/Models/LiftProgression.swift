@@ -3,7 +3,7 @@ import SwiftData
 
 @Model
 final class LiftProgression {
-    @Attribute(.unique) var liftKey: String = ""
+    var liftKey: String = ""
     var displayName: String = ""
     var currentWeightLb: Double = 0
     var consecutiveTopSessions: Int = 0

@@ -3,7 +3,7 @@ import SwiftData
 
 @Model
 final class SundayReview {
-    @Attribute(.unique) var weekStartDate: Date = Date.now
+    var weekStartDate: Date = Date.now
     var createdAt: Date = Date.now
     var pattern: String?
     var win: String?

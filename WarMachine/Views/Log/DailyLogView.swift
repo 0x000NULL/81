@@ -11,13 +11,9 @@ struct DailyLogView: View {
 
     private var today: Date { Calendar.current.startOfDay(for: .now) }
     private var log: DailyLog {
-        if let existing = logs.first(where: { Calendar.current.isDate($0.date, inSameDayAs: today) }) {
-            return existing
-        }
-        let new = DailyLog(date: .now)
-        context.insert(new)
+        let resolved = DailyLogStore.findOrCreate(date: today, in: context)
         try? context.save()
-        return new
+        return resolved
     }
 
     var body: some View {

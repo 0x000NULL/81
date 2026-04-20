@@ -3,7 +3,7 @@ import SwiftData
 
 @Model
 final class GtgLog {
-    @Attribute(.unique) var date: Date = Date.now
+    var date: Date = Date.now
     var totalReps: Int = 0
     var setsCompleted: Int = 0
     var target: Int = 30

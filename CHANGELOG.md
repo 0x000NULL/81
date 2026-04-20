@@ -1,5 +1,24 @@
 # Changelog
 
+## 1.3 — unreleased
+
+### Added
+- Siri Shortcut "Log GTG Set" via `LogGtgSetIntent` + `WarMachineShortcuts` (`AppShortcutsProvider`). Prompts for reps, runs without opening the app, accumulates onto today's `GtgLog`, refreshes the home-screen widget timeline.
+- Live iCloud sync via `NSPersistentCloudKitContainer` — every `@Model` mirrored to the user's private CloudKit DB (container `iCloud.com.ethanaldrich.81.app`). Settings → iCloud Sync surfaces account status, last-sync timestamp, an opt-out toggle (default ON), and an "Open iCloud settings" shortcut when the user is signed out.
+- Defense-in-depth dated backups: `CloudBackupService` writes one `backup-YYYY-MM-DD.json` per day to the app's iCloud Drive ubiquity container, retains the most recent 7. Restore from any dated file via Settings → iCloud Sync → Backups…
+- `Models/Stores/` — eight `findOrCreate` helpers (`GtgLogStore`, `DailyLogStore`, `SundayReviewStore`, `BookProgressStore`, `EquipmentStore`, `FavoritesStore`, `LiftProgressionStore`, `PRCacheStore`) that own row uniqueness now that `@Attribute(.unique)` is gone, merging duplicates inline on read (sum reps, MAX progress, OR booleans, prefer non-empty text, per-key MAX in JSON dicts).
+- `CloudKitStatusService` — `@Observable @MainActor` singleton wrapping `CKContainer.accountStatus` and `NSPersistentCloudKitContainer.eventChangedNotification` for the Settings UI.
+- `WidgetCenter.shared.reloadAllTimelines()` is now called from `GtgLogView.persistSnapshot()` so in-app GTG logs refresh the widget immediately (previously only the scheduled timeline picked up changes).
+
+### Changed
+- SchemaV4 (1.3.0). Drops `@Attribute(.unique)` from `LiftProgression.liftKey`, `DailyLog.date`, `GtgLog.date`, `SundayReview.weekStartDate`, `BookProgress.title`, `EquipmentItem.name`, `FavoriteVerse.reference`, `ExercisePRCache.exerciseKey`. CloudKit's record model has no unique-constraint primitive, so any of these would have prevented the store from opening under sync. Lightweight migration handles the V3→V4 delta as a constraint relaxation.
+- `ModelConfiguration` is constructed with `cloudKitDatabase: .private(...)` when `cloudkit.sync.enabled` is true (default), `.none` otherwise. Toggle change requires an app relaunch.
+- `project.yml` — `UIBackgroundModes` adds `remote-notification` (CloudKit silent-push); entitlements add `com.apple.developer.icloud-services: [CloudKit]`, `com.apple.developer.icloud-container-identifiers: [iCloud.com.ethanaldrich.81.app]`, `com.apple.developer.ubiquity-container-identifiers: [iCloud.com.ethanaldrich.81.app]`.
+- 7 find-or-create call sites routed through the new `Stores/` helpers: `GtgLogView`, `DailyLogView`, `SkipTodaySheet`, `SundayReviewView`, `VerseCard`, `BooksView`, `PRDetectorBridge`, `LogGtgSetIntent`. `PRDetectorBridge.detectAndPersist` is now `@MainActor` (cascaded from `PRCacheStore`).
+
+### Tests
+- 21 new tests: `LogGtgSetIntentTests` (3), `StoreDedupeTests` (10), `SchemaV4Tests` (3), `CloudBackupServiceTests` (5).
+
 ## 1.2 — unreleased
 
 ### Added

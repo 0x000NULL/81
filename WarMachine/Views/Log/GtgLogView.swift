@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import WidgetKit
 
 struct GtgLogView: View {
     @Environment(\.modelContext) private var context
@@ -9,13 +10,9 @@ struct GtgLogView: View {
 
     private var today: Date { Calendar.current.startOfDay(for: .now) }
     private var log: GtgLog {
-        if let existing = logs.first(where: { Calendar.current.isDate($0.date, inSameDayAs: today) }) {
-            return existing
-        }
-        let new = GtgLog(date: .now, target: target)
-        context.insert(new)
+        let resolved = GtgLogStore.findOrCreate(date: today, in: context)
         try? context.save()
-        return new
+        return resolved
     }
 
     var body: some View {
@@ -81,5 +78,6 @@ struct GtgLogView: View {
     private func persistSnapshot() {
         let snap = GtgWidgetSnapshot(date: .now, count: log.totalReps, target: log.target)
         snap.save()
+        WidgetCenter.shared.reloadAllTimelines()
     }
 }
