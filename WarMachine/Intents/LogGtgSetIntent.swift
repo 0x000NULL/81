@@ -4,11 +4,11 @@ import SwiftData
 import WidgetKit
 
 struct LogGtgSetIntent: AppIntent {
-    static var title: LocalizedStringResource = "Log GTG Set"
-    static var description = IntentDescription(
+    static let title: LocalizedStringResource = "Log GTG Set"
+    static let description = IntentDescription(
         "Records a Greasing-the-Groove pull-up set to today's count."
     )
-    static var openAppWhenRun: Bool = false
+    static let openAppWhenRun: Bool = false
 
     @Parameter(
         title: "Reps",
