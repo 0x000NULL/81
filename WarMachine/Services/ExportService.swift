@@ -23,8 +23,11 @@ struct ExportPayload: Codable {
     let meditations: [MeditationData]
     let favorites: [FavoriteData]
     let journal: [JournalData]
+    // Added in schema 1.4 (all optional for backwards-compat with 1.3 payloads)
+    let prCaches: [ExercisePRCacheData]?
+    let warmUps: [WarmUpData]?
 
-    static let currentSchemaVersion = "1.3-christian-journal"
+    static let currentSchemaVersion = "1.4-workout-v2"
 }
 
 struct ProfileData: Codable {
@@ -47,6 +50,10 @@ struct ProfileData: Codable {
     let currentMemorizationReference: String?
     // Added in schema 1.3
     let birthDate: Date?
+    // Added in schema 1.4
+    let preferredBarbellLb: Double?
+    let availablePlatesLb: [Double]?
+    let liveGPSRuckEnabled: Bool?
 }
 
 struct WorkoutData: Codable {
@@ -62,6 +69,10 @@ struct WorkoutData: Codable {
     let prePrayed: Bool
     let postPrayed: Bool
     let appliedRebuildDiscount: Bool
+    // Added in schema 1.4
+    let pauseIntervals: [Date]?
+    let totalTonnageLb: Double?
+    let liveDurationModeRaw: String?
 }
 
 struct ExerciseData: Codable {
@@ -77,6 +88,10 @@ struct ExerciseData: Codable {
     let restSeconds: Int
     let alternativeChosen: String?
     let isSwappedForTravel: Bool
+    // Added in schema 1.4
+    let loggerKind: String?
+    let pickedVariantKey: String?
+    let workDurationSec: Int?
 }
 
 struct SetData: Codable {
@@ -86,6 +101,36 @@ struct SetData: Codable {
     let weightLb: Double
     let reps: Int
     let completedAt: Date
+    // Added in schema 1.4 (all optional for backwards-compat)
+    let durationSec: Int?
+    let distanceYards: Int?
+    let distanceMiles: Double?
+    let loadLb: Double?
+    let rpe: Double?
+    let heartRateAvg: Int?
+    let cutRestShort: Bool?
+    let roundIndex: Int?
+    let setType: String?
+    let prKinds: [String]?
+    let isCompleted: Bool?
+}
+
+struct ExercisePRCacheData: Codable {
+    let exerciseKey: String
+    let bestEstimated1RMLb: Double?
+    let bestSetVolumeLb: Double?
+    let bestRepsAtWeightJSON: Data?
+    let bestHoldSec: Int?
+    let bestCarryYardsAtLoadJSON: Data?
+    let bestRuckMilesAtLoadJSON: Data?
+    let lastUpdatedAt: Date
+}
+
+struct WarmUpData: Codable {
+    let sessionID: UUID?
+    let completedItemKeys: [String]
+    let skipped: Bool
+    let completedAt: Date?
 }
 
 struct LiftData: Codable {
@@ -240,6 +285,8 @@ enum ExportService {
         let meditations = try context.fetch(FetchDescriptor<MeditationLog>())
         let favorites = try context.fetch(FetchDescriptor<FavoriteVerse>())
         let journal = try context.fetch(FetchDescriptor<PrayerJournalEntry>())
+        let prCaches = try context.fetch(FetchDescriptor<ExercisePRCache>())
+        let warmUps = try context.fetch(FetchDescriptor<WarmUpLog>())
 
         return ExportPayload(
             schemaVersion: ExportPayload.currentSchemaVersion,
@@ -258,7 +305,10 @@ enum ExportService {
                             rebuildModeRemainingSessions: $0.rebuildModeRemainingSessions,
                             lastUTMilestoneShown: $0.lastUTMilestoneShown,
                             currentMemorizationReference: $0.currentMemorizationReference,
-                            birthDate: $0.birthDate)
+                            birthDate: $0.birthDate,
+                            preferredBarbellLb: $0.preferredBarbellLb,
+                            availablePlatesLb: $0.availablePlatesLb,
+                            liveGPSRuckEnabled: $0.liveGPSRuckEnabled)
             },
             workouts: workouts.map {
                 WorkoutData(id: $0.id, date: $0.date, dayType: $0.dayTypeRaw,
@@ -266,7 +316,10 @@ enum ExportService {
                             difficulty: $0.difficulty, notes: $0.notes,
                             isTravelMode: $0.isTravelMode, abandoned: $0.abandoned,
                             prePrayed: $0.prePrayed, postPrayed: $0.postPrayed,
-                            appliedRebuildDiscount: $0.appliedRebuildDiscount)
+                            appliedRebuildDiscount: $0.appliedRebuildDiscount,
+                            pauseIntervals: $0.pauseIntervals,
+                            totalTonnageLb: $0.totalTonnageLb,
+                            liveDurationModeRaw: $0.liveDurationModeRaw)
             },
             exercises: exercises.map {
                 ExerciseData(id: $0.id, sessionID: $0.session?.id,
@@ -275,12 +328,26 @@ enum ExportService {
                              targetRepsMin: $0.targetRepsMin, targetRepsMax: $0.targetRepsMax,
                              targetWeight: $0.targetWeight, restSeconds: $0.restSeconds,
                              alternativeChosen: $0.alternativeChosen,
-                             isSwappedForTravel: $0.isSwappedForTravel)
+                             isSwappedForTravel: $0.isSwappedForTravel,
+                             loggerKind: $0.loggerKindRaw,
+                             pickedVariantKey: $0.pickedVariantKey,
+                             workDurationSec: $0.workDurationSec)
             },
             sets: sets.map {
                 SetData(id: $0.id, exerciseID: $0.exercise?.id,
                         setIndex: $0.setIndex, weightLb: $0.weightLb,
-                        reps: $0.reps, completedAt: $0.completedAt)
+                        reps: $0.reps, completedAt: $0.completedAt,
+                        durationSec: $0.durationSec,
+                        distanceYards: $0.distanceYards,
+                        distanceMiles: $0.distanceMiles,
+                        loadLb: $0.loadLb,
+                        rpe: $0.rpe,
+                        heartRateAvg: $0.heartRateAvg,
+                        cutRestShort: $0.cutRestShort,
+                        roundIndex: $0.roundIndex,
+                        setType: $0.setTypeRaw,
+                        prKinds: $0.prKinds,
+                        isCompleted: $0.isCompleted)
             },
             lifts: lifts.map {
                 LiftData(liftKey: $0.liftKey, displayName: $0.displayName,
@@ -364,6 +431,26 @@ enum ExportService {
             journal: journal.map {
                 JournalData(id: $0.id, createdAt: $0.createdAt, date: $0.date,
                             text: $0.text, tag: $0.tag, linkedFromDailyLog: $0.linkedFromDailyLog)
+            },
+            prCaches: prCaches.map {
+                ExercisePRCacheData(
+                    exerciseKey: $0.exerciseKey,
+                    bestEstimated1RMLb: $0.bestEstimated1RMLb,
+                    bestSetVolumeLb: $0.bestSetVolumeLb,
+                    bestRepsAtWeightJSON: $0.bestRepsAtWeightJSON,
+                    bestHoldSec: $0.bestHoldSec,
+                    bestCarryYardsAtLoadJSON: $0.bestCarryYardsAtLoadJSON,
+                    bestRuckMilesAtLoadJSON: $0.bestRuckMilesAtLoadJSON,
+                    lastUpdatedAt: $0.lastUpdatedAt
+                )
+            },
+            warmUps: warmUps.map {
+                WarmUpData(
+                    sessionID: $0.session?.id,
+                    completedItemKeys: $0.completedItemKeys,
+                    skipped: $0.skipped,
+                    completedAt: $0.completedAt
+                )
             }
         )
     }
@@ -411,6 +498,8 @@ enum ExportService {
         try context.delete(model: MeditationLog.self)
         try context.delete(model: FavoriteVerse.self)
         try context.delete(model: PrayerJournalEntry.self)
+        try context.delete(model: WarmUpLog.self)
+        try context.delete(model: ExercisePRCache.self)
 
         if let p = payload.profile {
             let profile = UserProfile()
@@ -432,7 +521,22 @@ enum ExportService {
             profile.lastUTMilestoneShown = p.lastUTMilestoneShown
             profile.currentMemorizationReference = p.currentMemorizationReference
             profile.birthDate = p.birthDate
+            profile.preferredBarbellLb = p.preferredBarbellLb ?? 45
+            profile.availablePlatesLb = p.availablePlatesLb ?? [45, 35, 25, 10, 5, 2.5]
+            profile.liveGPSRuckEnabled = p.liveGPSRuckEnabled ?? false
             context.insert(profile)
+        }
+
+        for cache in payload.prCaches ?? [] {
+            let c = ExercisePRCache(exerciseKey: cache.exerciseKey)
+            c.bestEstimated1RMLb = cache.bestEstimated1RMLb
+            c.bestSetVolumeLb = cache.bestSetVolumeLb
+            c.bestRepsAtWeightJSON = cache.bestRepsAtWeightJSON
+            c.bestHoldSec = cache.bestHoldSec
+            c.bestCarryYardsAtLoadJSON = cache.bestCarryYardsAtLoadJSON
+            c.bestRuckMilesAtLoadJSON = cache.bestRuckMilesAtLoadJSON
+            c.lastUpdatedAt = cache.lastUpdatedAt
+            context.insert(c)
         }
 
         for f in payload.favorites {

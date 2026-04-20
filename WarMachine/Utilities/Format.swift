@@ -44,4 +44,61 @@ enum Format {
         guard let ms else { return "—" }
         return "\(Int(ms.rounded())) ms"
     }
+
+    /// Compact one-line summary of a completed set, shaped to its
+    /// LoggerKind. Used on collapsed rows and summary cards.
+    static func setSummary(set: SetLog, kind: LoggerKind) -> String {
+        switch kind {
+        case .weightReps, .bodyweightReps:
+            return "\(Int(set.weightLb)) lb × \(set.reps)"
+        case .distanceLoad:
+            let yd = set.distanceYards ?? 0
+            let load = set.loadLb.map { Int($0) } ?? 0
+            return "\(yd)y @ \(load) lb"
+        case .durationHold:
+            let secs = set.durationSec ?? 0
+            return "\(secs)s"
+        case .cardioIntervals, .jumpRopeFinisher:
+            let secs = set.durationSec ?? 0
+            if let hr = set.heartRateAvg {
+                return "\(duration(seconds: secs)) · \(hr) bpm"
+            }
+            return duration(seconds: secs)
+        case .cardioSession:
+            let secs = set.durationSec ?? 0
+            if let hr = set.heartRateAvg {
+                return "\(duration(seconds: secs)) · \(hr) bpm"
+            }
+            return duration(seconds: secs)
+        case .ruck:
+            let mi = set.distanceMiles ?? 0
+            let load = set.loadLb.map { Int($0) } ?? 0
+            let secs = set.durationSec ?? 0
+            if secs > 0, mi > 0 {
+                let pace = Double(secs) / 60.0 / mi
+                return String(format: "%.2f mi · %@ · %d lb",
+                              mi, pace(minPerMile: pace), load)
+            }
+            return String(format: "%.2f mi · %d lb", mi, load)
+        }
+    }
+
+    /// One-line short hint of a prior set for the "Last:" row.
+    static func lastSetHint(set: SetLog, kind: LoggerKind) -> String {
+        switch kind {
+        case .weightReps, .bodyweightReps:
+            return "\(Int(set.weightLb)) × \(set.reps)"
+        case .distanceLoad:
+            let yd = set.distanceYards ?? 0
+            let load = set.loadLb.map { Int($0) } ?? 0
+            return "\(yd)y @ \(load) lb"
+        case .durationHold:
+            return "\((set.durationSec ?? 0))s"
+        case .cardioIntervals, .cardioSession, .jumpRopeFinisher:
+            return duration(seconds: set.durationSec ?? 0)
+        case .ruck:
+            let mi = set.distanceMiles ?? 0
+            return String(format: "%.1f mi", mi)
+        }
+    }
 }

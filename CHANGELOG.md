@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.2 — unreleased
+
+### Added
+- Strong-style checkbox set logger: every target set pre-renders as a row with a "Last: 185 × 5" hint pulled from the most recent completed session; tapping the checkbox persists the set and starts the rest timer.
+- Per-kind loggers dispatched by `ExerciseLog.loggerKind`: `DurationHoldLogger` (side plank, per-side L/R rows with timer), `DistanceRepsLogger` (carries, sled push — yards + load), `CardioIntervalLogger` (Tuesday intervals with modality picker + per-round work/rest timers), `JumpRopeFinisherLogger` (10 × 30s on / 30s off), `CardioSessionLogger` (Thursday Zone 2 with live HR and zone band), `RuckLogger` (Saturday ruck — manual distance + load; live GPS behind a UserProfile flag).
+- Walkthrough pager (`TabView(.page)`) replaces the scrolling exercise list: page 0 warm-up + travel mode, pages 1…N per exercise, finish page with session stats. Progress bar with live elapsed clock (pause-aware), overview sheet with tap-to-jump.
+- Set-type tags (warmup / normal / failure / drop) via row ellipsis menu. Warm-ups and drop sets are excluded from progression and tonnage; failure sets count for progression and PR.
+- RPE capture: collapsible 1–10 slider on every rep-based set row.
+- Plate calculator: tap the weight label on a barbell lift to open a per-side plate breakdown with bar picker (45 / 35 / 55 / 25), inexact-target nearest-below / nearest-above, and a Settings-backed plate inventory.
+- Warm-up per-item check-off backed by the new `WarmUpLog` model; all-items-checked auto-marks the routine done.
+- Session pause via progress-bar `pause.circle` glyph — paused time is subtracted from the live elapsed clock and persisted on `WorkoutSession.pauseIntervals`.
+- PR detection: `PRDetector` evaluates Epley 1RM, single-set volume, reps-at-weight, longest-hold seconds, furthest-carry-at-load, and furthest-ruck-at-load against a persistent `ExercisePRCache`. PR pills render inline on set rows and callouts surface on the summary. Warm-ups and drop sets are ineligible; failure sets are eligible.
+- `WorkoutSummaryView` rebuilt around four stat cards: Session (duration, sets, tonnage, cardio miles, hold seconds, avg HR), Today's work (per-exercise target-hit breakdown), New PRs, difficulty / notes / progression.
+- Settings → Workout section: bar picker, plate inventory editor, Live GPS ruck beta toggle, Reset PR cache.
+- `GritCircuitView` now collects live HR across the circuit and writes `activeEnergyKcal` (MET heuristic) + `avgHR` to HealthKit on finish.
+
+### Changed
+- SchemaV3 (1.2.0) with lightweight migration from V2. New fields on `SetLog` (`durationSec`, `distanceYards`, `distanceMiles`, `loadLb`, `rpe`, `heartRateAvg`, `cutRestShort`, `roundIndex`, `setTypeRaw`, `prKinds`, `isCompleted`); on `ExerciseLog` (`loggerKindRaw`, `pickedVariantKey`, `workDurationSec`); on `WorkoutSession` (`pauseIntervals`, `totalTonnageLb`, `liveDurationModeRaw`, `warmUp` relationship); on `UserProfile` (`preferredBarbellLb`, `availablePlatesLb`, `liveGPSRuckEnabled`). New models: `WarmUpLog`, `ExercisePRCache`.
+- `LoggerKindBackfill` runs once at app launch after migration to reclassify legacy `ExerciseLog` rows by `exerciseKey`.
+- `ProgressionEngine.hitTopOfRange` now filters sets by `SetType.countsTowardProgression` (warm-ups and drops excluded; failure sets count).
+- `HealthKitService.saveWorkout` now receives `distanceMi` + `avgHR` from `WorkoutSummaryView` so HKWorkouts for Zone 2 / ruck / interval days carry the right metadata.
+- Export schema bumped to `1.4-workout-v2`. `SetData`, `ExerciseData`, `WorkoutData`, `ProfileData` gained the new field surface; new `ExercisePRCacheData` and `WarmUpData` payloads appended. Backwards-compatible with 1.3 payloads.
+
+### Tests
+- 33 new tests: `SchemaV3MigrationTests`, `LoggerClassificationTests`, `LastSessionHintProviderTests`, `IntervalModalityTests`, `PlateCalculatorTests`, `PRDetectorTests`, `SetTypeFilterTests`, `ExportSchemaV14Tests`.
+
 ## 1.1 — unreleased
 
 ### Added

@@ -27,5 +27,6 @@ struct WarMachineApp: App {
         let sessions = (try? context.fetch(FetchDescriptor<WorkoutSession>())) ?? []
         TodayEngine.cleanupStaleSessions(sessions)
         try? context.save()
+        LoggerKindBackfill.run(context: context)
     }
 }
