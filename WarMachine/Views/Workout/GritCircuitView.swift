@@ -13,6 +13,8 @@ struct GritCircuitView: View {
     @State private var tappedTile: GritCircuit.Tile?
     @State private var entryAmount: Int = 10
     @State private var alternatives: [String: String] = [:]
+    @State private var hrSamples: [Double] = []
+    @State private var hrObserver: LiveHRObserver?
 
     private var session: WorkoutSession? { sessions.first { $0.id == sessionID } }
     private var profile: UserProfile? { profiles.first }
@@ -59,6 +61,19 @@ struct GritCircuitView: View {
         .sheet(item: $tappedTile) { tile in
             tileSheet(tile)
                 .preferredColorScheme(.dark)
+        }
+        .onAppear { startHRObserver() }
+        .onDisappear { hrObserver?.stop(); hrObserver = nil }
+    }
+
+    private func startHRObserver() {
+        guard hrObserver == nil else { return }
+        let obs = LiveHRObserver()
+        hrObserver = obs
+        Task {
+            await obs.start { bpm in
+                Task { @MainActor in hrSamples.append(bpm) }
+            }
         }
     }
 
@@ -144,14 +159,40 @@ struct GritCircuitView: View {
 
     private func finish() {
         guard let session else { return }
-        session.completedAt = .now
+        let end = Date.now
+        session.completedAt = end
         try? context.save()
+
+        hrObserver?.stop()
+        hrObserver = nil
+
+        let start = session.startedAt ?? session.date
+        let durationSec = max(0, end.timeIntervalSince(start))
+        let avgHR: Double? = hrSamples.isEmpty
+            ? nil
+            : hrSamples.reduce(0, +) / Double(hrSamples.count)
+        let kcal = estimatedKcal(bodyweightLb: profile?.bodyweightLb, durationSec: durationSec)
+
         Task {
-            let start = session.startedAt ?? session.date
             try? await HealthKitService.shared.saveWorkout(
-                dayType: .grit, startDate: start, endDate: .now
+                dayType: .grit,
+                startDate: start,
+                endDate: end,
+                distanceMi: nil,
+                activeEnergyKcal: kcal,
+                avgHR: avgHR
             )
         }
         dismiss()
+    }
+
+    /// MET-based kcal heuristic. Circuit calisthenics sit around
+    /// 8 METs; formula is `kcal = METs × kg × hours`.
+    private func estimatedKcal(bodyweightLb: Double?, durationSec: TimeInterval) -> Double? {
+        guard let lb = bodyweightLb, lb > 0, durationSec > 0 else { return nil }
+        let kg = lb / 2.20462
+        let hours = durationSec / 3600
+        let mets = 8.0
+        return mets * kg * hours
     }
 }

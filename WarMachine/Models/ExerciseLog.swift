@@ -16,6 +16,16 @@ final class ExerciseLog {
     var isSwappedForTravel: Bool = false
     var session: WorkoutSession?
 
+    // SchemaV3 additions.
+    var loggerKindRaw: String = LoggerKind.weightReps.rawValue
+    var pickedVariantKey: String?
+    var workDurationSec: Int?
+
+    var loggerKind: LoggerKind {
+        get { LoggerKind(rawValue: loggerKindRaw) ?? .weightReps }
+        set { loggerKindRaw = newValue.rawValue }
+    }
+
     @Relationship(deleteRule: .cascade, inverse: \SetLog.exercise)
     var sets: [SetLog]? = []
 
