@@ -142,18 +142,26 @@ struct ExerciseCardView: View {
     }
 
     private func targetText(adjustedWeight: Double) -> String {
+        // For weightReps we render an adjusted-weight line (deload/rebuild
+        // multiplier bites here). Everything else reuses the spec's rich
+        // setsText ("4 × 40 yards heavy", "3 × 30 sec each side", etc.),
+        // falling back to a generic string if the spec is missing.
         switch exercise.loggerKind {
         case .weightReps:
             return "Target: \(Int(adjustedWeight)) lb × \(exercise.targetRepsMin)–\(exercise.targetRepsMax)"
         case .bodyweightReps:
+            if let s = spec?.setsText, !s.isEmpty { return "Target: \(s)" }
             return "Target: \(exercise.targetRepsMin)–\(exercise.targetRepsMax) reps"
         case .distanceLoad:
+            if let s = spec?.setsText, !s.isEmpty { return "Target: \(s)" }
             return "Target: \(exercise.targetSets) rounds"
         case .durationHold:
+            if let s = spec?.setsText, !s.isEmpty { return "Target: \(s)" }
             return "Target: \(exercise.targetRepsMin)s hold"
         case .cardioIntervals, .cardioSession, .jumpRopeFinisher:
             return spec?.setsText ?? ""
         case .ruck:
+            if let s = spec?.setsText, !s.isEmpty { return "Target: \(s)" }
             return "Target: \(exercise.targetRepsMin)–\(exercise.targetRepsMax) mi"
         }
     }

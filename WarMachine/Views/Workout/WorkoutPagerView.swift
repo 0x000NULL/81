@@ -26,6 +26,7 @@ struct WorkoutPagerView: View {
     @State private var selection: Int = 0
     @State private var showingOverview = false
     @State private var isPaused: Bool = false
+    @State private var confirmingEmptyFinish = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -38,14 +39,14 @@ struct WorkoutPagerView: View {
                 completedFlags: completedFlags,
                 onPauseToggle: togglePause,
                 onOpenOverview: { showingOverview = true },
-                onFinish: onFinishTapped
+                onFinish: requestFinish
             )
             TabView(selection: $selection) {
                 warmUpPage.tag(0)
                 ForEach(Array(exercises.enumerated()), id: \.element.id) { idx, ex in
                     exercisePage(ex).tag(idx + 1)
                 }
-                WorkoutFinishPage(session: session, onFinishTapped: onFinishTapped)
+                WorkoutFinishPage(session: session, onFinishTapped: requestFinish)
                     .tag(exercises.count + 1)
             }
             .tabViewStyle(.page(indexDisplayMode: .never))
@@ -66,6 +67,33 @@ struct WorkoutPagerView: View {
         }
         .onAppear {
             isPaused = session.liveDurationModeRaw == "paused"
+        }
+        .confirmationDialog(
+            "Finish with no sets logged?",
+            isPresented: $confirmingEmptyFinish,
+            titleVisibility: .visible
+        ) {
+            Button("Finish anyway") { onFinishTapped() }
+            Button("Keep training", role: .cancel) {}
+        } message: {
+            Text("No working sets are recorded for this session. Finishing will mark it complete with zero volume.")
+        }
+    }
+
+    private var hasLoggedAnySet: Bool {
+        for ex in exercises {
+            if (ex.sets ?? []).contains(where: { $0.isCompleted && $0.setType != .warmup }) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private func requestFinish() {
+        if hasLoggedAnySet {
+            onFinishTapped()
+        } else {
+            confirmingEmptyFinish = true
         }
     }
 

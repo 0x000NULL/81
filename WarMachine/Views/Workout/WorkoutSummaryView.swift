@@ -274,23 +274,28 @@ struct WorkoutSummaryView: View {
         case .durationHold:
             return done.map { "\($0.durationSec ?? 0)s" }.joined(separator: ", ")
         case .cardioIntervals, .jumpRopeFinisher:
-            let total = done.compactMap { $0.durationSec }.reduce(0, +)
+            // Prefer the cached session-level total on ExerciseLog; fall
+            // back to summing per-round SetLog.durationSec.
+            let total = ex.workDurationSec
+                ?? done.compactMap { $0.durationSec }.reduce(0, +)
             return "\(done.count) rounds · \(Format.duration(seconds: total))"
         case .cardioSession:
-            if let set = done.first, let secs = set.durationSec {
-                return Format.duration(seconds: secs)
-            }
-            return "no session logged"
+            let secs = ex.workDurationSec ?? done.first?.durationSec
+            guard let secs else { return "no session logged" }
+            return Format.duration(seconds: secs)
         case .ruck:
-            if let set = done.first,
-               let mi = set.distanceMiles,
-               let secs = set.durationSec,
-               let load = set.loadLb {
-                let pace = Double(secs) / 60.0 / max(mi, 0.1)
+            guard let set = done.first,
+                  let mi = set.distanceMiles,
+                  let load = set.loadLb else {
+                return "no ruck logged"
+            }
+            let secs = ex.workDurationSec ?? set.durationSec ?? 0
+            let pace = secs > 0 ? Double(secs) / 60.0 / max(mi, 0.1) : 0
+            if secs > 0 {
                 return String(format: "%.1f mi · %@ · %d lb",
                               mi, Format.pace(minPerMile: pace), Int(load))
             }
-            return "no ruck logged"
+            return String(format: "%.1f mi · %d lb", mi, Int(load))
         }
     }
 

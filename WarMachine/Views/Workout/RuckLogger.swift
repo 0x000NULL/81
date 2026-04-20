@@ -28,6 +28,7 @@ struct RuckLogger: View {
     @State private var locationService: LocationService?
     @State private var gpsDistanceMiles: Double = 0
     @State private var gpsActive: Bool = false
+    @State private var gpsAuthDenied: Bool = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -41,6 +42,12 @@ struct RuckLogger: View {
             }
 
             elapsedAndPaceRow
+
+            if gpsAuthDenied {
+                Text("Location access is off — entering distance manually. Enable in iOS Settings → Privacy → Location Services.")
+                    .font(.caption)
+                    .foregroundStyle(Theme.destructive)
+            }
 
             inputsRow
 
@@ -189,11 +196,21 @@ struct RuckLogger: View {
         }
         if useGPS {
             let svc = LocationService()
+            svc.requestWhenInUse()
+            // Give iOS a moment to surface the prompt response.
+            let status = svc.authorizationStatus
+            let isGranted = status == .authorizedWhenInUse || status == .authorizedAlways
+            let isUndetermined = status == .notDetermined
+            if !isGranted && !isUndetermined {
+                // Denied or restricted. Leave the manual stepper in place.
+                gpsAuthDenied = true
+                return
+            }
             locationService = svc
             gpsActive = true
+            gpsAuthDenied = false
             gpsDistanceMiles = 0
             distanceMiles = 0
-            svc.requestWhenInUse()
             svc.startTracking()
             Task { @MainActor in
                 for await mi in svc.distanceStream {
@@ -237,6 +254,7 @@ struct RuckLogger: View {
         locationService?.stopTracking()
         locationService = nil
         gpsActive = false
+        gpsAuthDenied = false
         startedAt = nil
         hrSamples = []
     }
