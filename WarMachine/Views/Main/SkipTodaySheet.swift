@@ -66,11 +66,7 @@ struct SkipTodaySheet: View {
     private func save() {
         guard let selected else { return }
         let today = Calendar.current.startOfDay(for: .now)
-        let log = logs.first { Calendar.current.isDate($0.date, inSameDayAs: today) } ?? {
-            let new = DailyLog(date: .now)
-            context.insert(new)
-            return new
-        }()
+        let log = DailyLogStore.findOrCreate(date: today, in: context)
         log.skippedReason = selected
         log.skippedNote = note.isEmpty ? nil : note
 

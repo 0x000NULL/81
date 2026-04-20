@@ -6,6 +6,7 @@ import SwiftData
 ///   2. Feeds the new `SetLog` into the pure detector.
 ///   3. Writes `set.prKinds` + cache updates back in one save.
 enum PRDetectorBridge {
+    @MainActor
     @discardableResult
     static func detectAndPersist(set: SetLog,
                                  exerciseKey: String,
@@ -58,14 +59,8 @@ enum PRDetectorBridge {
         return out.kinds
     }
 
+    @MainActor
     private static func cache(for key: String, in context: ModelContext) -> ExercisePRCache {
-        var descriptor = FetchDescriptor<ExercisePRCache>(
-            predicate: #Predicate { $0.exerciseKey == key }
-        )
-        descriptor.fetchLimit = 1
-        if let existing = (try? context.fetch(descriptor))?.first { return existing }
-        let fresh = ExercisePRCache(exerciseKey: key)
-        context.insert(fresh)
-        return fresh
+        PRCacheStore.findOrCreate(exerciseKey: key, in: context)
     }
 }

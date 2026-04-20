@@ -3,7 +3,7 @@ import SwiftData
 
 @Model
 final class FavoriteVerse {
-    @Attribute(.unique) var reference: String = ""
+    var reference: String = ""
     var savedAt: Date = Date.now
     var note: String?
 

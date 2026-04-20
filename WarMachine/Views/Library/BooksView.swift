@@ -220,13 +220,12 @@ struct BookProgressEditSheet: View {
     }
 
     private func save() {
-        let bp: BookProgress
-        if let e = existing {
-            bp = e
-        } else {
-            bp = BookProgress(title: book.title, author: book.author, isChristian: book.isChristian)
-            context.insert(bp)
-        }
+        let bp = BookProgressStore.findOrCreate(
+            title: book.title,
+            author: book.author,
+            isChristian: book.isChristian,
+            in: context
+        )
         bp.started = started || completed
         bp.completed = completed
         bp.currentPage = currentPage

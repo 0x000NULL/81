@@ -6,11 +6,15 @@ These came up during the v1.0 build but were explicitly out of scope.
 
 All shipped in v1.1 — see CHANGELOG.md.
 
+## Near-term (v1.3)
+
+Shipped — see CHANGELOG.md:
+- Siri Shortcut "Log GTG set".
+- iCloud backup — full SwiftData ↔ CloudKit live sync **plus** dated JSON snapshots in iCloud Drive (defense-in-depth, retain 7).
+
 ## Post-v1
 
-- Shortcuts actions — "Log GTG set" via Siri.
 - Focus filter integration for training days.
-- iCloud backup (beyond export JSON).
 - Weekly Scripture prompt — auto-suggest a verse Monday morning for Thursday memorization.
 - Charts on Sunday review screen (promise rate trend, workout completion bar chart).
 - Multiple identity sentences with 30-day cadence reminder to revisit.

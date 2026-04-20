@@ -3,7 +3,7 @@ import SwiftData
 
 @Model
 final class DailyLog {
-    @Attribute(.unique) var date: Date = Date.now
+    var date: Date = Date.now
 
     // Morning
     var morningPrayerPrayed: Bool = false

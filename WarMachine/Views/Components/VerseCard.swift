@@ -58,10 +58,10 @@ struct VerseCard: View {
     }
 
     private func toggleFavorite() {
-        if let existing = favorites.first(where: { $0.reference == verse.reference }) {
+        if let existing = FavoritesStore.find(reference: verse.reference, in: context) {
             context.delete(existing)
         } else {
-            context.insert(FavoriteVerse(reference: verse.reference))
+            _ = FavoritesStore.findOrCreate(reference: verse.reference, in: context)
         }
         try? context.save()
     }

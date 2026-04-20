@@ -95,6 +95,23 @@ enum SchemaV3: VersionedSchema {
     }
 }
 
+// v1.3 — Drop @Attribute(.unique) on every model that had one
+// (LiftProgression.liftKey, DailyLog.date, GtgLog.date,
+//  SundayReview.weekStartDate, BookProgress.title, EquipmentItem.name,
+//  FavoriteVerse.reference, ExercisePRCache.exerciseKey).
+//
+// Why: NSPersistentCloudKitContainer rejects unique constraints — they
+// have no equivalent in CloudKit's record model, so the store fails to
+// open with sync enabled. Uniqueness now lives in the Stores/ helpers
+// (findOrCreate + merge-on-collision), which are safe under sync.
+enum SchemaV4: VersionedSchema {
+    static let versionIdentifier = Schema.Version(1, 3, 0)
+
+    static var models: [any PersistentModel.Type] {
+        SchemaV3.models
+    }
+}
+
 enum WarMachineMigrationPlan: SchemaMigrationPlan {
     // SchemaV1 is intentionally absent: its model graph is identical to
     // SchemaV2 (V2 only added optional/defaulted fields, which resolve off
@@ -125,6 +142,16 @@ enum WarMachineMigrationPlan: SchemaMigrationPlan {
 final class AppModelContainer {
     static let shared = AppModelContainer()
 
+    /// CloudKit container ID. Must match the entitlements file and be
+    /// provisioned in developer.apple.com (Xcode auto-creates on first
+    /// signed build) and have schema deployed in CloudKit Dashboard
+    /// before TestFlight/App Store submission.
+    static let cloudKitContainerID = "iCloud.com.ethanaldrich.81.app"
+
+    /// UserDefaults key for the user-visible iCloud sync toggle.
+    /// Defaults to ON; users opt out via Settings → iCloud Sync.
+    static let cloudSyncEnabledKey = "cloudkit.sync.enabled"
+
     let container: ModelContainer
     /// Non-nil when the real store failed to open — caller should surface
     /// this to the user instead of presenting the normal UI, because the
@@ -132,24 +159,30 @@ final class AppModelContainer {
     let launchError: String?
 
     private init() {
-        let schema = Schema(versionedSchema: SchemaV3.self)
+        let schema = Schema(versionedSchema: SchemaV4.self)
+        let cloudSyncEnabled = (UserDefaults.standard.object(forKey: Self.cloudSyncEnabledKey) as? Bool) ?? true
+        let cloudKitDatabase: ModelConfiguration.CloudKitDatabase = cloudSyncEnabled
+            ? .private(Self.cloudKitContainerID)
+            : .none
         let config: ModelConfiguration
         if let groupURL = FileManager.default
             .containerURL(forSecurityApplicationGroupIdentifier: AppGroup.suiteName) {
             let storeURL = groupURL.appendingPathComponent("81.store")
-            config = ModelConfiguration(schema: schema, url: storeURL)
+            config = ModelConfiguration(schema: schema, url: storeURL, cloudKitDatabase: cloudKitDatabase)
         } else {
             log.warning("App Group container unavailable; using default store")
-            config = ModelConfiguration(schema: schema)
+            config = ModelConfiguration(schema: schema, cloudKitDatabase: cloudKitDatabase)
         }
         do {
-            // Deliberately no migrationPlan: SchemaV1/V2/V3 all reference
-            // the current live @Model classes, so they hash identically
-            // at runtime and NSStagedMigrationManager can't find a
-            // matching "from" schema for the on-disk store. Letting
-            // SwiftData do its default lightweight inference against
-            // SchemaV3 is the right behavior until we freeze per-version
-            // model snapshots.
+            // Deliberately no migrationPlan: SchemaV1/V2/V3/V4 all
+            // reference the current live @Model classes, so they hash
+            // identically at runtime and NSStagedMigrationManager can't
+            // find a matching "from" schema for the on-disk store.
+            // Letting SwiftData do its default lightweight inference
+            // against SchemaV4 is the right behavior until we freeze
+            // per-version model snapshots. Lightweight inference handles
+            // the SchemaV3 → V4 delta (drop @Attribute(.unique)) by
+            // simply dropping the unique index on the underlying store.
             container = try ModelContainer(
                 for: schema,
                 configurations: [config]

@@ -102,11 +102,12 @@ targets:
         NSLocationAlwaysAndWhenInUseUsageDescription: "Used to record route and distance during rucks even when the screen is off."
         # Motion (optional, for pedometer context)
         NSMotionUsageDescription: "Used to capture step and distance context during outdoor sessions."
-        # Background modes for ruck tracking + scheduled tasks
+        # Background modes for ruck tracking + CloudKit silent-push sync
         UIBackgroundModes:
           - location
           - processing
           - fetch
+          - remote-notification
         UIFileSharingEnabled: false
         LSSupportsOpeningDocumentsInPlace: false
         CFBundleURLTypes:
@@ -119,6 +120,12 @@ targets:
         com.apple.developer.healthkit: true
         com.apple.security.application-groups:
           - group.BA256NPZGA.warmachine
+        com.apple.developer.icloud-services:
+          - CloudKit
+        com.apple.developer.icloud-container-identifiers:
+          - iCloud.com.ethanaldrich.81.app
+        com.apple.developer.ubiquity-container-identifiers:
+          - iCloud.com.ethanaldrich.81.app
     dependencies:
       - target: GtgWidget
         embed: true
