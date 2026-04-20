@@ -17,7 +17,7 @@ struct NumberStepper: View {
     }
 
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 8) {
             Button {
                 value = max(range.lowerBound, value - step)
             } label: {
@@ -27,12 +27,15 @@ struct NumberStepper: View {
                     .background(Theme.surface)
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             }
+            .buttonStyle(.plain)
             .accessibilityLabel("Decrease")
 
             Text(formatter(value))
                 .font(.title3.monospacedDigit())
                 .foregroundStyle(Theme.textPrimary)
-                .frame(minWidth: 80)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .frame(minWidth: 64)
 
             Button {
                 value = min(range.upperBound, value + step)
@@ -43,6 +46,7 @@ struct NumberStepper: View {
                     .background(Theme.surface)
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             }
+            .buttonStyle(.plain)
             .accessibilityLabel("Increase")
         }
     }
@@ -60,7 +64,7 @@ struct IntegerStepper: View {
     }
 
     var body: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 8) {
             Button {
                 value = max(range.lowerBound, value - step)
             } label: {
@@ -70,12 +74,15 @@ struct IntegerStepper: View {
                     .background(Theme.surface)
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             }
+            .buttonStyle(.plain)
             .accessibilityLabel("Decrease")
 
             Text("\(value)")
                 .font(.title3.monospacedDigit())
                 .foregroundStyle(Theme.textPrimary)
-                .frame(minWidth: 60)
+                .lineLimit(1)
+                .minimumScaleFactor(0.7)
+                .frame(minWidth: 44)
 
             Button {
                 value = min(range.upperBound, value + step)
@@ -86,6 +93,7 @@ struct IntegerStepper: View {
                     .background(Theme.surface)
                     .clipShape(RoundedRectangle(cornerRadius: Theme.Radius.button))
             }
+            .buttonStyle(.plain)
             .accessibilityLabel("Increase")
         }
     }
