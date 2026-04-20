@@ -10,9 +10,11 @@ enum ProgressionEngine {
     }
 
     /// Did every working set reach the top of its rep range?
+    /// Warmup and drop sets are excluded; failure sets are included.
     static func hitTopOfRange(sets: [SetLog], targetTopReps: Int) -> Bool {
-        guard !sets.isEmpty else { return false }
-        return sets.allSatisfy { $0.reps >= targetTopReps }
+        let evaluable = sets.filter { $0.setType.countsTowardProgression }
+        guard !evaluable.isEmpty else { return false }
+        return evaluable.allSatisfy { $0.reps >= targetTopReps }
     }
 
     /// Evaluate a main or accessory lift for progression.

@@ -95,6 +95,12 @@ struct ExerciseCardView: View {
 
     private func handleCheckbox(_ set: SetLog, checked: Bool) {
         guard checked else { return }
+        PRDetectorBridge.detectAndPersist(
+            set: set,
+            exerciseKey: exercise.exerciseKey,
+            loggerKind: exercise.loggerKind,
+            context: context
+        )
         onStartRest(set.setIndex)
     }
 
