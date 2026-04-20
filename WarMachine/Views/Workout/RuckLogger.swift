@@ -16,6 +16,7 @@ struct RuckLogger: View {
 
     @Environment(\.modelContext) private var context
     @Query private var sessions: [WorkoutSession]
+    @Query private var profiles: [UserProfile]
 
     @State private var startedAt: Date?
     @State private var hrSamples: [Double] = []
@@ -24,6 +25,9 @@ struct RuckLogger: View {
     @State private var distanceMiles: Double = 8
     @State private var loadLb: Double = 40
     @State private var persistedSet: SetLog?
+    @State private var locationService: LocationService?
+    @State private var gpsDistanceMiles: Double = 0
+    @State private var gpsActive: Bool = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -65,7 +69,13 @@ struct RuckLogger: View {
             }
         }
         .onAppear { prime() }
-        .onDisappear { observer?.stop(); observer = nil }
+        .onDisappear {
+            observer?.stop()
+            observer = nil
+            locationService?.stopTracking()
+            locationService = nil
+            gpsActive = false
+        }
     }
 
     @ViewBuilder
@@ -102,15 +112,28 @@ struct RuckLogger: View {
     private var inputsRow: some View {
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Distance")
-                    .font(.caption)
-                    .foregroundStyle(Theme.textSecondary)
-                NumberStepper(
-                    value: $distanceMiles,
-                    step: 0.1,
-                    range: 0...30,
-                    formatter: { String(format: "%.1f mi", $0) }
-                )
+                HStack(spacing: 4) {
+                    Text("Distance")
+                        .font(.caption)
+                        .foregroundStyle(Theme.textSecondary)
+                    if gpsActive {
+                        Image(systemName: "location.fill")
+                            .font(.caption2)
+                            .foregroundStyle(Theme.accent)
+                    }
+                }
+                if gpsActive {
+                    Text(String(format: "%.2f mi", distanceMiles))
+                        .font(.title3.monospacedDigit())
+                        .foregroundStyle(Theme.textPrimary)
+                } else {
+                    NumberStepper(
+                        value: $distanceMiles,
+                        step: 0.1,
+                        range: 0...30,
+                        formatter: { String(format: "%.1f mi", $0) }
+                    )
+                }
             }
             Spacer()
             VStack(alignment: .leading, spacing: 4) {
@@ -120,6 +143,10 @@ struct RuckLogger: View {
                 NumberStepper(value: $loadLb, step: 5, range: 0...100)
             }
         }
+    }
+
+    private var useGPS: Bool {
+        profiles.first?.liveGPSRuckEnabled ?? false
     }
 
     private var aggregateHint: LastSessionHint? {
@@ -160,6 +187,21 @@ struct RuckLogger: View {
                 }
             }
         }
+        if useGPS {
+            let svc = LocationService()
+            locationService = svc
+            gpsActive = true
+            gpsDistanceMiles = 0
+            distanceMiles = 0
+            svc.requestWhenInUse()
+            svc.startTracking()
+            Task { @MainActor in
+                for await mi in svc.distanceStream {
+                    gpsDistanceMiles = mi
+                    distanceMiles = mi
+                }
+            }
+        }
     }
 
     private func stop() {
@@ -167,6 +209,9 @@ struct RuckLogger: View {
         let elapsed = max(1, Int(Date.now.timeIntervalSince(startedAt)))
         observer?.stop()
         observer = nil
+        locationService?.stopTracking()
+        locationService = nil
+        gpsActive = false
 
         let set = SetLog(setIndex: 0, weightLb: 0, reps: 0)
         set.durationSec = elapsed
@@ -189,6 +234,9 @@ struct RuckLogger: View {
     private func cancel() {
         observer?.stop()
         observer = nil
+        locationService?.stopTracking()
+        locationService = nil
+        gpsActive = false
         startedAt = nil
         hrSamples = []
     }

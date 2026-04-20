@@ -42,6 +42,10 @@ final class UserProfile {
     var preferredBarbellLb: Double = 45.0
     var availablePlatesLb: [Double] = [45, 35, 25, 10, 5, 2.5]
 
+    // Optional beta — drive RuckLogger distance from CoreLocation while
+    // the ruck is active. Off by default; toggled in Settings.
+    var liveGPSRuckEnabled: Bool = false
+
     init() {}
 }
 
