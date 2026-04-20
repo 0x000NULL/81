@@ -25,6 +25,10 @@ struct WorkoutView: View {
         return Exercises.forDay(session.dayType)
     }
 
+    private var specsByKey: [String: ExerciseSpec] {
+        Dictionary(uniqueKeysWithValues: specsForDay.map { ($0.key, $0) })
+    }
+
     private var weightMultiplier: Double {
         guard let profile, let session else { return 1 }
         let week = TodayEngine.currentWeek(startDate: profile.startDate, now: session.date)
@@ -36,44 +40,24 @@ struct WorkoutView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: Theme.Spacing.default) {
-                if let session {
-                    if weightMultiplier < 1 {
-                        Banner(
-                            systemImage: "arrow.down.circle",
-                            title: modeTitle,
-                            message: modeMessage
-                        )
-                    }
-                    WarmUpCard(routine: WarmUps.of(session.dayType), done: $warmUpDone)
-                    if session.dayType == .zone2 {
-                        Zone2LiveHRCard(maxHR: profile?.zone2MaxHR())
-                    }
-                    travelModeRow(session: session)
-                    if let duration = restTimerDuration {
-                        RestTimerView(duration: duration, onSkip: {
-                            RestTimerService.shared.skip()
-                            restTimerDuration = nil
-                        })
-                    }
-                    ForEach(exercises(for: session)) { exerciseLog in
-                        ExerciseCardView(
-                            exercise: exerciseLog,
-                            spec: specsForDay.first { $0.key == exerciseLog.exerciseKey },
-                            weightMultiplier: weightMultiplier,
-                            onStartRest: { _ in
-                                startRest(seconds: exerciseLog.restSeconds)
-                            }
-                        )
-                    }
-                    PrimaryButton("Finish workout", systemImage: "checkmark.circle.fill") {
-                        showingSummary = true
-                    }
-                    .padding(.top, Theme.Spacing.default)
-                }
+        Group {
+            if let session {
+                WorkoutPagerView(
+                    session: session,
+                    exercises: exercises(for: session),
+                    specsByKey: specsByKey,
+                    weightMultiplier: weightMultiplier,
+                    restTimerDuration: restTimerDuration,
+                    warmUpDone: $warmUpDone,
+                    modeBanner: modeBannerView,
+                    onStartRest: startRest,
+                    onSkipRest: skipRest,
+                    onTravelToggle: { newVal in applyTravelToggle(session: session, enabled: newVal) },
+                    onFinishTapped: { showingSummary = true }
+                )
+            } else {
+                Color.clear
             }
-            .padding()
         }
         .background(Theme.bg.ignoresSafeArea())
         .navigationTitle(session?.dayType.label ?? "Workout")
@@ -136,6 +120,17 @@ struct WorkoutView: View {
         }
     }
 
+    private var modeBannerView: AnyView? {
+        guard weightMultiplier < 1 else { return nil }
+        return AnyView(
+            Banner(
+                systemImage: "arrow.down.circle",
+                title: modeTitle,
+                message: modeMessage
+            )
+        )
+    }
+
     private var modeTitle: String {
         guard let profile else { return "Reduced weights." }
         if profile.rebuildModeRemainingSessions > 0 { return "Rebuild mode." }
@@ -150,31 +145,10 @@ struct WorkoutView: View {
         return "Working weights cut 40%. Same movements."
     }
 
-    private func travelModeRow(session: WorkoutSession) -> some View {
-        Card {
-            HStack {
-                Image(systemName: "airplane")
-                    .foregroundStyle(session.isTravelMode ? Theme.accent : Theme.textSecondary)
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Travel Mode")
-                        .font(.subheadline.weight(.semibold))
-                        .foregroundStyle(Theme.textPrimary)
-                    Text("Swaps every exercise to its bodyweight alternative.")
-                        .font(.caption)
-                        .foregroundStyle(Theme.textSecondary)
-                }
-                Spacer()
-                Toggle("", isOn: Binding(
-                    get: { session.isTravelMode },
-                    set: { newVal in
-                        session.isTravelMode = newVal
-                        applyTravelMode(session: session, enabled: newVal)
-                        try? context.save()
-                    }
-                ))
-                .labelsHidden()
-            }
-        }
+    private func applyTravelToggle(session: WorkoutSession, enabled: Bool) {
+        session.isTravelMode = enabled
+        applyTravelMode(session: session, enabled: enabled)
+        try? context.save()
     }
 
     private func configureOnFirstOpen() {
@@ -242,5 +216,10 @@ struct WorkoutView: View {
         Task {
             await RestTimerService.shared.start(exerciseLogID: UUID(), setIndex: 0, duration: seconds)
         }
+    }
+
+    private func skipRest() {
+        RestTimerService.shared.skip()
+        restTimerDuration = nil
     }
 }
