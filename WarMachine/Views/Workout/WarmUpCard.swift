@@ -68,8 +68,8 @@ struct WarmUpCard: View {
 
     private func primeLog() {
         _ = warmUpLog
-        if done == false, let completedAt = session.warmUp?.completedAt {
-            done = completedAt != nil
+        if done == false, session.warmUp?.completedAt != nil {
+            done = true
         }
     }
 

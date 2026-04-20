@@ -35,7 +35,7 @@ struct WarMachineApp: App {
         TodayEngine.cleanupStaleSessions(sessions)
         try? context.save()
         LoggerKindBackfill.run(context: context)
-        try? CloudBackupService.shared.writeDailyBackupIfNeeded(context: context)
+        _ = try? CloudBackupService.shared.writeDailyBackupIfNeeded(context: context)
     }
 }
 
