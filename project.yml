@@ -104,8 +104,6 @@ targets:
         # Background modes for ruck tracking + CloudKit silent-push sync
         UIBackgroundModes:
           - location
-          - processing
-          - fetch
           - remote-notification
         UIFileSharingEnabled: false
         LSSupportsOpeningDocumentsInPlace: false
