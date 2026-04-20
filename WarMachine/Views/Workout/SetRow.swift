@@ -139,7 +139,7 @@ struct SetRow: View {
 
     @ViewBuilder
     private var inputsRow: some View {
-        HStack(spacing: 16) {
+        HStack(spacing: 12) {
             if kinds.contains(.weight) {
                 VStack(alignment: .leading, spacing: 4) {
                     Button {
