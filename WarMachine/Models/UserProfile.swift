@@ -38,6 +38,10 @@ final class UserProfile {
     // Optional — enables "180 − age" target for Thursday Zone 2
     var birthDate: Date?
 
+    // SchemaV3 additions — barbell / plate config for the plate calculator.
+    var preferredBarbellLb: Double = 45.0
+    var availablePlatesLb: [Double] = [45, 35, 25, 10, 5, 2.5]
+
     init() {}
 }
 

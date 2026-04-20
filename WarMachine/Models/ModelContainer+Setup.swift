@@ -59,13 +59,52 @@ enum SchemaV2: VersionedSchema {
     }
 }
 
+// v1.2 — Workout section expansion.
+//   SetLog:         + durationSec, distanceYards, distanceMiles, loadLb,
+//                     rpe, heartRateAvg, cutRestShort, roundIndex,
+//                     setTypeRaw, prKinds, isCompleted
+//   ExerciseLog:    + loggerKindRaw, pickedVariantKey, workDurationSec
+//   WorkoutSession: + pauseIntervals, totalTonnageLb, liveDurationModeRaw,
+//                     warmUp relationship
+//   UserProfile:    + preferredBarbellLb, availablePlatesLb
+//   New models:     + WarmUpLog, ExercisePRCache
+enum SchemaV3: VersionedSchema {
+    static let versionIdentifier = Schema.Version(1, 2, 0)
+
+    static var models: [any PersistentModel.Type] {
+        [
+            UserProfile.self,
+            WorkoutSession.self,
+            ExerciseLog.self,
+            SetLog.self,
+            WarmUpLog.self,
+            ExercisePRCache.self,
+            LiftProgression.self,
+            DailyLog.self,
+            GtgLog.self,
+            RuckLog.self,
+            SundayReview.self,
+            BaselineTest.self,
+            BookProgress.self,
+            EquipmentItem.self,
+            PrayerLog.self,
+            MeditationLog.self,
+            FavoriteVerse.self,
+            PrayerJournalEntry.self
+        ]
+    }
+}
+
 enum WarMachineMigrationPlan: SchemaMigrationPlan {
     static var schemas: [any VersionedSchema.Type] {
-        [SchemaV1.self, SchemaV2.self]
+        [SchemaV1.self, SchemaV2.self, SchemaV3.self]
     }
 
     static var stages: [MigrationStage] {
-        [.lightweight(fromVersion: SchemaV1.self, toVersion: SchemaV2.self)]
+        [
+            .lightweight(fromVersion: SchemaV1.self, toVersion: SchemaV2.self),
+            .lightweight(fromVersion: SchemaV2.self, toVersion: SchemaV3.self)
+        ]
     }
 }
 
@@ -76,7 +115,7 @@ final class AppModelContainer {
     let container: ModelContainer
 
     private init() {
-        let schema = Schema(versionedSchema: SchemaV2.self)
+        let schema = Schema(versionedSchema: SchemaV3.self)
         let config: ModelConfiguration
         if let groupURL = FileManager.default
             .containerURL(forSecurityApplicationGroupIdentifier: AppGroup.suiteName) {
