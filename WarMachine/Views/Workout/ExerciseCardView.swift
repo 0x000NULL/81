@@ -8,8 +8,6 @@ struct ExerciseCardView: View {
     let onStartRest: (Int) -> Void
     @Environment(\.modelContext) private var context
     @State private var showingAlternatives = false
-    @State private var lastWeight: Double = 0
-    @State private var lastReps: Int = 0
     @State private var editingSet: SetLog?
 
     var body: some View {
@@ -25,35 +23,7 @@ struct ExerciseCardView: View {
 
                 targetLine
 
-                SetLoggerView(
-                    exercise: exercise,
-                    multiplier: weightMultiplier,
-                    lastWeight: $lastWeight,
-                    lastReps: $lastReps,
-                    onLogged: { setIndex in
-                        onStartRest(setIndex)
-                    }
-                )
-
-                if let sets = exercise.sets?.sorted(by: { $0.setIndex < $1.setIndex }), !sets.isEmpty {
-                    VStack(alignment: .leading, spacing: 6) {
-                        ForEach(sets) { s in
-                            HStack {
-                                Text("Set \(s.setIndex + 1): \(Int(s.weightLb)) lb × \(s.reps)")
-                                    .foregroundStyle(Theme.textPrimary)
-                                    .font(.subheadline.monospacedDigit())
-                                Spacer()
-                                Button {
-                                    editingSet = s
-                                } label: {
-                                    Image(systemName: "ellipsis")
-                                        .foregroundStyle(Theme.textSecondary)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                        }
-                    }
-                }
+                logger
             }
         }
         .sheet(isPresented: $showingAlternatives) {
@@ -71,13 +41,59 @@ struct ExerciseCardView: View {
         }
     }
 
+    @ViewBuilder
+    private var logger: some View {
+        switch exercise.loggerKind {
+        case .weightReps, .bodyweightReps:
+            SetLoggerView(
+                exercise: exercise,
+                spec: spec,
+                multiplier: weightMultiplier,
+                onCheckboxToggled: handleCheckbox,
+                onRequestEdit: { editingSet = $0 },
+                onRequestPlateCalculator: { _ in }
+            )
+        case .durationHold:
+            DurationHoldLogger(
+                exercise: exercise,
+                spec: spec,
+                onCheckboxToggled: handleCheckbox,
+                onRequestEdit: { editingSet = $0 }
+            )
+        case .distanceLoad:
+            DistanceRepsLogger(
+                exercise: exercise,
+                spec: spec,
+                onCheckboxToggled: handleCheckbox,
+                onRequestEdit: { editingSet = $0 }
+            )
+        case .cardioIntervals, .cardioSession, .ruck, .jumpRopeFinisher:
+            // Phase 2 / 3a will fill these in. For now show a legacy
+            // weight/reps logger so the screen isn't blank on these days.
+            SetLoggerView(
+                exercise: exercise,
+                spec: spec,
+                multiplier: weightMultiplier,
+                onCheckboxToggled: handleCheckbox,
+                onRequestEdit: { editingSet = $0 },
+                onRequestPlateCalculator: { _ in }
+            )
+        }
+    }
+
+    private func handleCheckbox(_ set: SetLog, checked: Bool) {
+        guard checked else { return }
+        onStartRest(set.setIndex)
+    }
+
     private var header: some View {
         HStack {
             VStack(alignment: .leading, spacing: 2) {
                 Text(exercise.displayName)
                     .font(.headline)
                     .foregroundStyle(Theme.textPrimary)
-                if let spec { Text(spec.setsText)
+                if let spec {
+                    Text(spec.setsText)
                         .font(.caption)
                         .foregroundStyle(Theme.textSecondary)
                 }
@@ -95,16 +111,37 @@ struct ExerciseCardView: View {
     private var targetLine: some View {
         let adjusted = exercise.targetWeight * weightMultiplier
         return HStack {
-            Text("Target: \(Int(adjusted)) lb × \(exercise.targetRepsMin)–\(exercise.targetRepsMax)")
+            Text(targetText(adjustedWeight: adjusted))
                 .font(.subheadline)
                 .foregroundStyle(Theme.textSecondary)
             Spacer()
-            Text("\(exercise.restSeconds)s rest")
-                .font(.caption)
-                .foregroundStyle(Theme.textSecondary)
+            if exercise.restSeconds > 0 {
+                Text("\(exercise.restSeconds)s rest")
+                    .font(.caption)
+                    .foregroundStyle(Theme.textSecondary)
+            }
+        }
+    }
+
+    private func targetText(adjustedWeight: Double) -> String {
+        switch exercise.loggerKind {
+        case .weightReps:
+            return "Target: \(Int(adjustedWeight)) lb × \(exercise.targetRepsMin)–\(exercise.targetRepsMax)"
+        case .bodyweightReps:
+            return "Target: \(exercise.targetRepsMin)–\(exercise.targetRepsMax) reps"
+        case .distanceLoad:
+            return "Target: \(exercise.targetSets) rounds"
+        case .durationHold:
+            return "Target: \(exercise.targetRepsMin)s hold"
+        case .cardioIntervals, .cardioSession, .jumpRopeFinisher:
+            return spec?.setsText ?? ""
+        case .ruck:
+            return "Target: \(exercise.targetRepsMin)–\(exercise.targetRepsMax) mi"
         }
     }
 }
+
+// MARK: - SetEditSheet
 
 struct SetEditSheet: View {
     let set: SetLog
@@ -128,7 +165,7 @@ struct SetEditSheet: View {
                     Text("Reps")
                         .font(.subheadline.weight(.semibold))
                         .foregroundStyle(Theme.textPrimary)
-                    IntegerStepper(value: $reps, range: 0...100)
+                    IntegerStepper(value: $reps, range: 0...200)
                 }
                 Spacer()
                 PrimaryButton("Save") {
@@ -159,3 +196,4 @@ struct SetEditSheet: View {
         }
     }
 }
+

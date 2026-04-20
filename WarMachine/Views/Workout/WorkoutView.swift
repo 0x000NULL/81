@@ -210,6 +210,7 @@ struct WorkoutView: View {
                 restSeconds: spec.restSeconds
             )
             log.session = session
+            log.loggerKind = spec.loggerKind
             log.alternativeChosen = session.isTravelMode ? spec.travelAlternative : nil
             log.isSwappedForTravel = session.isTravelMode
             context.insert(log)
