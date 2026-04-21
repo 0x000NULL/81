@@ -9,7 +9,7 @@ struct ExportServiceTests {
 
     @Test("round-trip covers schema 1.3 fields (birthDate, book progress, memorization)")
     func roundTrip() async throws {
-        let schema = Schema(versionedSchema: SchemaV3.self)
+        let schema = Schema(versionedSchema: SchemaV4.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: schema, configurations: [config])
         let ctx = ModelContext(container)
@@ -18,6 +18,8 @@ struct ExportServiceTests {
         let profile = UserProfile()
         profile.bodyweightLb = 200
         profile.identitySentence = "I am a son of God."
+        profile.identitySentences = ["I am a son of God.", "I am free in Christ."]
+        profile.lastIdentityReviewedAt = Date(timeIntervalSince1970: 1_700_000_500)
         profile.birthDate = dob
         ctx.insert(profile)
 
@@ -38,15 +40,25 @@ struct ExportServiceTests {
         let entry = PrayerJournalEntry(text: "thankful", tag: "gratitude")
         ctx.insert(entry)
 
+        let monday = VerseEngine.weekStart(of: Date(timeIntervalSince1970: 1_700_000_000))
+        let target = WeeklyVerseTarget(weekStartDate: monday, reference: "Isaiah 40:31")
+        target.memorizedAt = Date(timeIntervalSince1970: 1_700_000_300)
+        ctx.insert(target)
+
         try ctx.save()
 
         let payload = try ExportService.buildPayload(context: ctx)
-        #expect(payload.schemaVersion == "1.4-workout-v2")
+        #expect(payload.schemaVersion == "1.5-identity-weekly-verse")
         #expect(payload.profile?.bodyweightLb == 200)
         #expect(payload.profile?.birthDate == dob)
+        #expect(payload.profile?.identitySentences == ["I am a son of God.", "I am free in Christ."])
+        #expect(payload.profile?.lastIdentityReviewedAt == Date(timeIntervalSince1970: 1_700_000_500))
         #expect(payload.favorites.count == 1)
         #expect(payload.favorites.first?.isMemorized == true)
         #expect(payload.favorites.first?.lastReviewedAt == Date(timeIntervalSince1970: 1_700_000_000))
+        #expect(payload.weeklyVerseTargets?.count == 1)
+        #expect(payload.weeklyVerseTargets?.first?.reference == "Isaiah 40:31")
+        #expect(payload.weeklyVerseTargets?.first?.memorizedAt == Date(timeIntervalSince1970: 1_700_000_300))
         #expect(payload.books.count == 1)
         #expect(payload.books.first?.currentPage == 42)
         #expect(payload.books.first?.totalPages == 240)
@@ -129,7 +141,7 @@ struct ExportServiceTests {
         #expect(decoded.favorites.first?.lastReviewedAt == nil)
 
         // Import into a fresh context — missing fields should default (0 for Ints, false for isMemorized).
-        let schema = Schema(versionedSchema: SchemaV3.self)
+        let schema = Schema(versionedSchema: SchemaV4.self)
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: schema, configurations: [config])
         let ctx = ModelContext(container)
@@ -145,5 +157,12 @@ struct ExportServiceTests {
         #expect(favs.count == 1)
         #expect(favs.first?.isMemorized == false)
         #expect(favs.first?.lastReviewedAt == nil)
+
+        // v1.5 back-compat: importing a pre-1.5 payload seeds identitySentences
+        // from the single identitySentence on the profile.
+        let profiles = try ctx.fetch(FetchDescriptor<UserProfile>())
+        #expect(profiles.count == 1)
+        #expect(profiles.first?.identitySentences == ["I am a son of God."])
+        #expect(profiles.first?.lastIdentityReviewedAt == nil)
     }
 }

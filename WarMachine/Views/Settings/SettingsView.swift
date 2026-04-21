@@ -16,9 +16,14 @@ struct SettingsView: View {
     @State private var showingExporter: URL?
     @State private var showingImporter = false
     @State private var showingAbout = false
+    @State private var showingIdentityEditor = false
     @State private var dataError: String?
     @State private var birthDate: Date = Date()
     @State private var birthDateSet: Bool = false
+
+    @State private var weeklyVerseMondayEnabled: Bool = true
+    @State private var weeklyVerseThursdayEnabled: Bool = true
+    @State private var identityReviewEnabled: Bool = true
 
     private var profile: UserProfile? { profiles.first }
 
@@ -60,6 +65,29 @@ struct SettingsView: View {
                     Button("Reschedule") {
                         saveTimes()
                     }
+
+                    Toggle("Weekly verse — Monday pick", isOn: $weeklyVerseMondayEnabled)
+                        .onChange(of: weeklyVerseMondayEnabled) { _, newVal in
+                            UserDefaults.standard.set(newVal, forKey: NotificationService.Prefs.weeklyVerseMondayEnabled)
+                            Task { await NotificationService.shared.scheduleWeeklyVerseMonday(enabled: newVal) }
+                        }
+                    Toggle("Weekly verse — Thursday review", isOn: $weeklyVerseThursdayEnabled)
+                        .onChange(of: weeklyVerseThursdayEnabled) { _, newVal in
+                            UserDefaults.standard.set(newVal, forKey: NotificationService.Prefs.weeklyVerseThursdayEnabled)
+                            Task { await NotificationService.shared.scheduleWeeklyVerseThursday(enabled: newVal) }
+                        }
+                    Toggle("Identity — 30-day revisit", isOn: $identityReviewEnabled)
+                        .onChange(of: identityReviewEnabled) { _, newVal in
+                            UserDefaults.standard.set(newVal, forKey: NotificationService.Prefs.identityReviewEnabled)
+                            Task {
+                                if newVal, let p = profile {
+                                    let due = IdentityEngine.nextReviewDueAt(profile: p)
+                                    await NotificationService.shared.scheduleIdentityReview(dueAt: due, enabled: true)
+                                } else {
+                                    await NotificationService.shared.cancelIdentityReview()
+                                }
+                            }
+                        }
                 }
 
                 Section("Birthday") {
@@ -98,6 +126,21 @@ struct SettingsView: View {
                         Text("Bodyweight: \(Format.weight(p.bodyweightLb))")
                         Text("Level: \(p.level.label)")
                         Text("Start date: \(p.startDate.formatted(date: .abbreviated, time: .omitted))")
+                        Button {
+                            showingIdentityEditor = true
+                        } label: {
+                            HStack {
+                                Text("Identity sentences")
+                                    .foregroundStyle(Theme.textPrimary)
+                                Spacer()
+                                Text("\(p.identitySentences.count)")
+                                    .font(.caption.monospacedDigit())
+                                    .foregroundStyle(Theme.textSecondary)
+                                Image(systemName: "chevron.right")
+                                    .foregroundStyle(Theme.textSecondary)
+                            }
+                        }
+                        .buttonStyle(.plain)
                         if p.injuryFlag {
                             Button("Clear injury flag") {
                                 p.injuryFlag = false
@@ -154,6 +197,15 @@ struct SettingsView: View {
                         birthDate = dob
                         birthDateSet = true
                     }
+                }
+                weeklyVerseMondayEnabled = NotificationService.Prefs.bool(NotificationService.Prefs.weeklyVerseMondayEnabled)
+                weeklyVerseThursdayEnabled = NotificationService.Prefs.bool(NotificationService.Prefs.weeklyVerseThursdayEnabled)
+                identityReviewEnabled = NotificationService.Prefs.bool(NotificationService.Prefs.identityReviewEnabled)
+            }
+            .sheet(isPresented: $showingIdentityEditor) {
+                if let p = profile {
+                    IdentitySentencesEditorView(profile: p)
+                        .preferredColorScheme(.dark)
                 }
             }
             .confirmationDialog("Reset everything?", isPresented: $showingReset, titleVisibility: .visible) {

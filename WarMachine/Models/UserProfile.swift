@@ -16,6 +16,14 @@ final class UserProfile {
     var bodyweightLb: Double = 180
     var waistInches: Double = 34
     var identitySentence: String = "I am a son of God who does the work."
+    /// Schema v1.5+: the full curated list. Empty on pre-v1.5 profiles — callers
+    /// should fall back to `identitySentence`. Seeded once at launch from the
+    /// single-sentence field so the rotation and 30-day revisit both have a
+    /// pool to draw from.
+    var identitySentences: [String] = []
+    /// Timestamp of the user's most recent "I reviewed my identity" confirmation.
+    /// Drives the 30-day revisit prompt. Nil ⇒ never reviewed yet.
+    var lastIdentityReviewedAt: Date?
 
     // Notification times
     var morningReminderHour: Int = 6

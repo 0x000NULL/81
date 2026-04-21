@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.5 — unreleased
+
+### Added
+- **Weekly Scripture memorization target** (`WeeklyVerseTarget` model + `WeeklyVerseTargetStore`). Each Monday, `TodayView` ensures a target exists for the week, auto-picking from the user's oldest non-memorized favorites (skipping any used in the last 8 weeks), falling back to memorized favorites for review, then to the deterministic themed daily pick. New `WeeklyVerseCard` on the home screen above the daily `VerseCard` with Memorized / Swap / Dismiss actions. New Monday 08:00 and Thursday 08:00 recurring notifications (`scheduleWeeklyVerseMonday`, `scheduleWeeklyVerseThursday`), toggleable in Settings → Notifications. Deep link `warmachine://verse` routes to the home tab.
+- **Multiple identity sentences with 30-day cadence** (`UserProfile.identitySentences: [String]` + `lastIdentityReviewedAt`). New `IdentityEngine` rotates sentences deterministically by date and computes 30-day review-due state (suppressed during onboarding grace). Seed-at-launch copies the legacy single `identitySentence` into the array on first v1.5 run. New `IdentitySentencesEditorView` accessible from Settings → State → Identity sentences and from a home-screen revisit card when 30 days have elapsed. Identity revisit notification (`scheduleIdentityReview`) is a one-shot that rebooks when the user confirms review.
+- **Sunday review all-time charts** (`WeeklyStatsEngine` + `SundayReviewChartsSection`). Two Swift Charts surfaces on the Sunday review screen: promise rate line chart (kept ÷ logged per week, 0–100%) and workouts-per-week bar chart (completed, excluding abandoned). Spans from `UserProfile.startDate` through the current week; scrolls horizontally with a 12-week visible window when history exceeds ~26 weeks.
+
+### Changed
+- SchemaV4 extended additively (still version 1.3.0; no `migrationPlan`). Adds `WeeklyVerseTarget` to `SchemaV4.models`; `UserProfile` gains `identitySentences: [String]` and `lastIdentityReviewedAt: Date?`. Handled by SwiftData lightweight inference.
+- Export schema bumped to `1.5-identity-weekly-verse`. `ProfileData` gains `identitySentences` and `lastIdentityReviewedAt` (both optional for backward compat); new `WeeklyVerseTargetData` collection. Import path seeds `identitySentences` from the legacy single sentence when decoding a pre-1.5 payload.
+- `NotificationService` gains three new identifiers (`weeklyVerseMonday`, `weeklyVerseThursday`, `identityReview`) and a `Prefs` namespace for their UserDefaults toggles (all default ON).
+
+### Tests
+- 26 new test cases: `IdentityEngineTests` (11), `WeeklyStatsEngineTests` (5), `WeeklyVerseTargetStoreTests` (4), `VerseEngineTests` extensions for `weekStart` / `pickWeeklyTarget` / `currentWeekTarget` (5), `ExportServiceTests` round-trip updated to cover the v1.5 fields, `ExportSchemaV14Tests` retargeted to 1.5.
+
 ## 1.3 — unreleased
 
 ### Added

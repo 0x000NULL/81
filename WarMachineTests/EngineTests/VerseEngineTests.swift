@@ -75,6 +75,70 @@ struct VerseEngineTests {
         #expect(VerseEngine.memorizationReviewDue(favorites: [saved], now: now) == nil)
     }
 
+    // MARK: - Weekly target tests (v1.5)
+
+    @Test("weekStart normalizes any day in a week to its Monday")
+    func weekStartNormalizes() {
+        // 2023-11-15 was a Wednesday.
+        let wednesday = Calendar.current.date(from: DateComponents(year: 2023, month: 11, day: 15))!
+        let monday = VerseEngine.weekStart(of: wednesday)
+        let weekday = Calendar.current.component(.weekday, from: monday)
+        #expect(weekday == 2)
+    }
+
+    @Test("pickWeeklyTarget prefers oldest non-memorized favorite")
+    @MainActor
+    func pickPrefersFavorites() throws {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let older = FavoriteVerse(reference: "Psalm 144:1")
+        older.savedAt = now.addingTimeInterval(-10 * 86400)
+        let newer = FavoriteVerse(reference: "Romans 8:37")
+        newer.savedAt = now
+        let picked = VerseEngine.pickWeeklyTarget(
+            favorites: [newer, older], priorTargets: [], on: now
+        )
+        #expect(picked.reference == "Psalm 144:1")
+    }
+
+    @Test("pickWeeklyTarget skips references used in the last 8 weeks")
+    @MainActor
+    func pickSkipsRecent() throws {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let favA = FavoriteVerse(reference: "Psalm 144:1")
+        favA.savedAt = now.addingTimeInterval(-10 * 86400)
+        let favB = FavoriteVerse(reference: "Romans 8:37")
+        favB.savedAt = now.addingTimeInterval(-5 * 86400)
+
+        let priorMonday = Calendar.current.date(byAdding: .day, value: -7, to: VerseEngine.weekStart(of: now))!
+        let prior = WeeklyVerseTarget(weekStartDate: priorMonday, reference: "Psalm 144:1")
+
+        let picked = VerseEngine.pickWeeklyTarget(
+            favorites: [favA, favB], priorTargets: [prior], on: now
+        )
+        #expect(picked.reference == "Romans 8:37")
+    }
+
+    @Test("pickWeeklyTarget falls back to the themed daily pick when no favorites")
+    @MainActor
+    func pickFallback() throws {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+        let picked = VerseEngine.pickWeeklyTarget(favorites: [], priorTargets: [], on: now)
+        // Must be a real verse from the pool, not garbage.
+        #expect(BibleVerses.byReference(picked.reference) != nil)
+    }
+
+    @Test("currentWeekTarget matches on the Monday of the enclosing week")
+    @MainActor
+    func currentWeekMatches() throws {
+        let anyDay = Date(timeIntervalSince1970: 1_700_000_000)
+        let monday = VerseEngine.weekStart(of: anyDay)
+        let target = WeeklyVerseTarget(weekStartDate: monday, reference: "Isaiah 40:31")
+        #expect(VerseEngine.currentWeekTarget(targets: [target], on: anyDay)?.reference == "Isaiah 40:31")
+
+        let nextWeek = Calendar.current.date(byAdding: .day, value: 7, to: anyDay)!
+        #expect(VerseEngine.currentWeekTarget(targets: [target], on: nextWeek) == nil)
+    }
+
     @MainActor
     private static func makeContext() throws -> ModelContext {
         let schema = Schema(versionedSchema: SchemaV2.self)

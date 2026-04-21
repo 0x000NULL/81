@@ -26,8 +26,10 @@ struct ExportPayload: Codable {
     // Added in schema 1.4 (all optional for backwards-compat with 1.3 payloads)
     let prCaches: [ExercisePRCacheData]?
     let warmUps: [WarmUpData]?
+    // Added in schema 1.5 (weekly memorization target + multi-identity rotation)
+    let weeklyVerseTargets: [WeeklyVerseTargetData]?
 
-    static let currentSchemaVersion = "1.4-workout-v2"
+    static let currentSchemaVersion = "1.5-identity-weekly-verse"
 }
 
 struct ProfileData: Codable {
@@ -54,6 +56,18 @@ struct ProfileData: Codable {
     let preferredBarbellLb: Double?
     let availablePlatesLb: [Double]?
     let liveGPSRuckEnabled: Bool?
+    // Added in schema 1.5
+    let identitySentences: [String]?
+    let lastIdentityReviewedAt: Date?
+}
+
+struct WeeklyVerseTargetData: Codable {
+    let id: UUID
+    let weekStartDate: Date
+    let reference: String
+    let pickedAt: Date
+    let memorizedAt: Date?
+    let dismissedAt: Date?
 }
 
 struct WorkoutData: Codable {
@@ -287,6 +301,7 @@ enum ExportService {
         let journal = try context.fetch(FetchDescriptor<PrayerJournalEntry>())
         let prCaches = try context.fetch(FetchDescriptor<ExercisePRCache>())
         let warmUps = try context.fetch(FetchDescriptor<WarmUpLog>())
+        let weeklyTargets = try context.fetch(FetchDescriptor<WeeklyVerseTarget>())
 
         return ExportPayload(
             schemaVersion: ExportPayload.currentSchemaVersion,
@@ -308,7 +323,9 @@ enum ExportService {
                             birthDate: $0.birthDate,
                             preferredBarbellLb: $0.preferredBarbellLb,
                             availablePlatesLb: $0.availablePlatesLb,
-                            liveGPSRuckEnabled: $0.liveGPSRuckEnabled)
+                            liveGPSRuckEnabled: $0.liveGPSRuckEnabled,
+                            identitySentences: $0.identitySentences,
+                            lastIdentityReviewedAt: $0.lastIdentityReviewedAt)
             },
             workouts: workouts.map {
                 WorkoutData(id: $0.id, date: $0.date, dayType: $0.dayTypeRaw,
@@ -451,6 +468,16 @@ enum ExportService {
                     skipped: $0.skipped,
                     completedAt: $0.completedAt
                 )
+            },
+            weeklyVerseTargets: weeklyTargets.map {
+                WeeklyVerseTargetData(
+                    id: $0.id,
+                    weekStartDate: $0.weekStartDate,
+                    reference: $0.reference,
+                    pickedAt: $0.pickedAt,
+                    memorizedAt: $0.memorizedAt,
+                    dismissedAt: $0.dismissedAt
+                )
             }
         )
     }
@@ -500,6 +527,7 @@ enum ExportService {
         try context.delete(model: PrayerJournalEntry.self)
         try context.delete(model: WarmUpLog.self)
         try context.delete(model: ExercisePRCache.self)
+        try context.delete(model: WeeklyVerseTarget.self)
 
         if let p = payload.profile {
             let profile = UserProfile()
@@ -524,7 +552,23 @@ enum ExportService {
             profile.preferredBarbellLb = p.preferredBarbellLb ?? 45
             profile.availablePlatesLb = p.availablePlatesLb ?? [45, 35, 25, 10, 5, 2.5]
             profile.liveGPSRuckEnabled = p.liveGPSRuckEnabled ?? false
+            // v1.5: if decoding a pre-1.5 payload with no array, seed from the
+            // single sentence so the rotation has something to draw from.
+            let importedSentences = (p.identitySentences ?? []).filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+            profile.identitySentences = importedSentences.isEmpty
+                ? (p.identitySentence.isEmpty ? [] : [p.identitySentence])
+                : importedSentences
+            profile.lastIdentityReviewedAt = p.lastIdentityReviewedAt
             context.insert(profile)
+        }
+
+        for t in payload.weeklyVerseTargets ?? [] {
+            let target = WeeklyVerseTarget(weekStartDate: t.weekStartDate, reference: t.reference)
+            target.id = t.id
+            target.pickedAt = t.pickedAt
+            target.memorizedAt = t.memorizedAt
+            target.dismissedAt = t.dismissedAt
+            context.insert(target)
         }
 
         for cache in payload.prCaches ?? [] {

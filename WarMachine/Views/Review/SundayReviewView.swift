@@ -9,6 +9,7 @@ struct SundayReviewView: View {
     @Query private var daily: [DailyLog]
     @Query private var prayers: [PrayerLog]
     @Query private var meditations: [MeditationLog]
+    @Query private var profiles: [UserProfile]
 
     @State private var pattern = ""
     @State private var win = ""
@@ -42,6 +43,8 @@ struct SundayReviewView: View {
                 }
 
                 statsCard
+
+                SundayReviewChartsSection(stats: chartStats)
 
                 Card {
                     VStack(alignment: .leading, spacing: 12) {
@@ -123,6 +126,16 @@ struct SundayReviewView: View {
         review.hardThingsDone = weekDaily.filter { $0.hardThingText != nil }.count
         review.prayersPrayed = prayers.filter { $0.prayedAt >= weekStart && $0.prayedAt < weekEnd }.count
         review.meditationsLogged = meditations.filter { $0.completedAt >= weekStart && $0.completedAt < weekEnd }.count
+    }
+
+    private var chartStats: [WeeklyStats] {
+        guard let profile = profiles.first else { return [] }
+        return WeeklyStatsEngine.weeklyStats(
+            startDate: profile.startDate,
+            now: .now,
+            dailyLogs: daily,
+            sessions: sessions
+        )
     }
 
     private func save() {
