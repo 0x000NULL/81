@@ -8,9 +8,11 @@ struct TodayView: View {
     @Query private var dailyLogs: [DailyLog]
     @Query private var baselineTests: [BaselineTest]
     @Query private var favorites: [FavoriteVerse]
+    @Query private var weeklyTargets: [WeeklyVerseTarget]
 
     @State private var showingSkipSheet = false
     @State private var showingResumeSheet = false
+    @State private var showingIdentityEditor = false
     @State private var navigateToWorkout: WorkoutSession?
     @State private var utMilestone: Int?
 
@@ -50,6 +52,22 @@ struct TodayView: View {
         VerseEngine.memorizationReviewDue(favorites: favorites)
     }
 
+    private var currentWeeklyTarget: WeeklyVerseTarget? {
+        VerseEngine.currentWeekTarget(targets: weeklyTargets).flatMap { target in
+            target.dismissedAt == nil ? target : nil
+        }
+    }
+
+    private var identitySentence: String {
+        guard let profile else { return "" }
+        return IdentityEngine.sentenceForToday(profile: profile)
+    }
+
+    private var identityReviewDue: Bool {
+        guard let profile else { return false }
+        return IdentityEngine.reviewDue(profile: profile)
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -58,7 +76,11 @@ struct TodayView: View {
                     returnPolicyBanner
                     if incompleteWorkout != nil { resumeCard }
                     if let milestone = utMilestone { utBanner(milestone: milestone) }
+                    if identityReviewDue { identityRevisitCard }
                     todayCard
+                    if let target = currentWeeklyTarget {
+                        WeeklyVerseCard(target: target, onSwap: swapWeeklyVerse)
+                    }
                     VerseCard(verse: verseOfDay)
                     if let due = memorizationDue { memorizationReviewCard(for: due) }
                     dailyGritCard
@@ -95,8 +117,48 @@ struct TodayView: View {
             .navigationDestination(item: $navigateToWorkout) { session in
                 WorkoutView(sessionID: session.id)
             }
+            .sheet(isPresented: $showingIdentityEditor) {
+                if let p = profile {
+                    IdentitySentencesEditorView(profile: p)
+                        .preferredColorScheme(.dark)
+                }
+            }
         }
-        .onAppear { computeUTMilestone() }
+        .onAppear {
+            computeUTMilestone()
+            ensureWeeklyTarget()
+        }
+    }
+
+    // MARK: Weekly verse
+
+    private func ensureWeeklyTarget() {
+        let monday = VerseEngine.weekStart(of: .now)
+        // Skip if user already dismissed this week's target.
+        if let existing = WeeklyVerseTargetStore.find(weekStartDate: monday, in: context) {
+            if existing.reference.isEmpty {
+                let pick = VerseEngine.pickWeeklyTarget(favorites: favorites, priorTargets: weeklyTargets)
+                existing.reference = pick.reference
+                existing.pickedAt = .now
+                try? context.save()
+            }
+            return
+        }
+        let pick = VerseEngine.pickWeeklyTarget(favorites: favorites, priorTargets: weeklyTargets)
+        _ = WeeklyVerseTargetStore.findOrCreate(weekStartDate: monday, reference: pick.reference, in: context)
+        try? context.save()
+    }
+
+    private func swapWeeklyVerse() {
+        guard let current = currentWeeklyTarget else { return }
+        // Exclude the current reference from the pick by treating the current
+        // target as a "prior" so it's in the 8-week skip list.
+        let others = weeklyTargets.filter { $0.id != current.id }
+        let pick = VerseEngine.pickWeeklyTarget(favorites: favorites, priorTargets: others + [current])
+        current.reference = pick.reference
+        current.pickedAt = .now
+        current.memorizedAt = nil
+        try? context.save()
     }
 
     // MARK: Sections
@@ -106,10 +168,33 @@ struct TodayView: View {
             Text("Week \(currentWeek) · Day \(daysSinceStart)")
                 .font(.caption)
                 .foregroundStyle(Theme.textSecondary)
-            if let s = profile?.identitySentence {
-                IdentityLine(sentence: s)
+            if profile != nil, !identitySentence.isEmpty {
+                IdentityLine(sentence: identitySentence)
+                    .onTapGesture { showingIdentityEditor = true }
             }
         }
+    }
+
+    private var identityRevisitCard: some View {
+        Card {
+            HStack(spacing: 12) {
+                Image(systemName: "person.fill.questionmark")
+                    .foregroundStyle(Theme.accent)
+                    .font(.title3)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Identity check-in")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(Theme.textPrimary)
+                    Text("30 days. Revisit who you say you are.")
+                        .font(.caption)
+                        .foregroundStyle(Theme.textSecondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .foregroundStyle(Theme.textSecondary)
+            }
+        }
+        .onTapGesture { showingIdentityEditor = true }
     }
 
     private var daysSinceStart: Int {

@@ -2,6 +2,7 @@ import SwiftUI
 
 enum DeepLink: Equatable {
     case gtg
+    case weeklyVerse
 }
 
 private struct DeepLinkKey: EnvironmentKey {

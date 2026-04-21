@@ -104,11 +104,16 @@ enum SchemaV3: VersionedSchema {
 // have no equivalent in CloudKit's record model, so the store fails to
 // open with sync enabled. Uniqueness now lives in the Stores/ helpers
 // (findOrCreate + merge-on-collision), which are safe under sync.
+//
+// v1.5 delta (additive, lightweight-inferrable):
+//   + WeeklyVerseTarget model (Monday-keyed memorization target history)
+//   + UserProfile.identitySentences: [String]
+//   + UserProfile.lastIdentityReviewedAt: Date?
 enum SchemaV4: VersionedSchema {
     static let versionIdentifier = Schema.Version(1, 3, 0)
 
     static var models: [any PersistentModel.Type] {
-        SchemaV3.models
+        SchemaV3.models + [WeeklyVerseTarget.self]
     }
 }
 

@@ -3,19 +3,19 @@ import Foundation
 import SwiftData
 @testable import WarMachine
 
-@Suite("Export schema 1.4")
+@Suite("Export schema 1.5")
 struct ExportSchemaV14Tests {
 
     private func inMemoryContext() throws -> ModelContext {
-        let schema = Schema(versionedSchema: SchemaV3.self)
+        let schema = Schema(versionedSchema: SchemaV4.self)
         let config = ModelConfiguration(schema: schema, isStoredInMemoryOnly: true)
         let container = try ModelContainer(for: schema, configurations: [config])
         return ModelContext(container)
     }
 
-    @Test("schema version string is 1.4-workout-v2")
+    @Test("schema version string is 1.5-identity-weekly-verse")
     func version() {
-        #expect(ExportPayload.currentSchemaVersion == "1.4-workout-v2")
+        #expect(ExportPayload.currentSchemaVersion == "1.5-identity-weekly-verse")
     }
 
     @MainActor
@@ -47,7 +47,7 @@ struct ExportSchemaV14Tests {
         let encoded = try ExportService.encode(payload)
         let decoded = try ExportService.decode(encoded)
 
-        #expect(decoded.schemaVersion == "1.4-workout-v2")
+        #expect(decoded.schemaVersion == "1.5-identity-weekly-verse")
         #expect(decoded.sets.count == 1)
         let first = decoded.sets[0]
         #expect(first.distanceYards == 40)

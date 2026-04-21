@@ -17,8 +17,11 @@ struct WarMachineApp: App {
                         .task { await onLaunch() }
                         .environment(\.deepLink, deepLink)
                         .onOpenURL { url in
-                            if url.scheme == "warmachine", url.host == "gtg" {
-                                deepLink = .gtg
+                            guard url.scheme == "warmachine" else { return }
+                            switch url.host {
+                            case "gtg": deepLink = .gtg
+                            case "verse": deepLink = .weeklyVerse
+                            default: break
                             }
                         }
                 }
@@ -33,9 +36,21 @@ struct WarMachineApp: App {
         let context = ModelContext(container)
         let sessions = (try? context.fetch(FetchDescriptor<WorkoutSession>())) ?? []
         TodayEngine.cleanupStaleSessions(sessions)
+        // v1.5: seed identitySentences from legacy single sentence (no-op once
+        // the array is populated). Runs per-launch, cheap, idempotent.
+        let profiles = (try? context.fetch(FetchDescriptor<UserProfile>())) ?? []
+        for profile in profiles { IdentityEngine.seedIfNeeded(profile: profile) }
         try? context.save()
         LoggerKindBackfill.run(context: context)
         _ = try? CloudBackupService.shared.writeDailyBackupIfNeeded(context: context)
+
+        // v1.5: book the identity-review one-shot notification based on current
+        // profile state. Re-booked elsewhere when the user marks reviewed.
+        if let profile = profiles.first,
+           NotificationService.Prefs.bool(NotificationService.Prefs.identityReviewEnabled) {
+            let due = IdentityEngine.nextReviewDueAt(profile: profile)
+            await NotificationService.shared.scheduleIdentityReview(dueAt: due, enabled: true)
+        }
     }
 }
 

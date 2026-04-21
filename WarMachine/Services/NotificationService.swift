@@ -17,6 +17,20 @@ final class NotificationService {
         static let sabbath = "81.reminder.sabbath"
         static let deload  = "81.reminder.deload"
         static let rest    = "81.reminder.rest"
+        static let weeklyVerseMonday = "81.reminder.weeklyVerse.monday"
+        static let weeklyVerseThursday = "81.reminder.weeklyVerse.thursday"
+        static let identityReview = "81.reminder.identityReview"
+    }
+
+    /// UserDefaults keys for the v1.5 notification toggles. Default ON.
+    enum Prefs {
+        static let weeklyVerseMondayEnabled = "notifications.weeklyVerse.monday.enabled"
+        static let weeklyVerseThursdayEnabled = "notifications.weeklyVerse.thursday.enabled"
+        static let identityReviewEnabled = "notifications.identityReview.enabled"
+
+        static func bool(_ key: String, default value: Bool = true) -> Bool {
+            (UserDefaults.standard.object(forKey: key) as? Bool) ?? value
+        }
     }
 
     func requestAuthorization() async throws -> Bool {
@@ -36,6 +50,8 @@ final class NotificationService {
         await scheduleWorkoutReminder(hour: workoutHour)
         await scheduleEveningReview(hour: eveningHour, minute: eveningMinute)
         await scheduleSabbathReview()
+        await scheduleWeeklyVerseMonday(enabled: Prefs.bool(Prefs.weeklyVerseMondayEnabled))
+        await scheduleWeeklyVerseThursday(enabled: Prefs.bool(Prefs.weeklyVerseThursdayEnabled))
     }
 
     func scheduleMorning(hour: Int, minute: Int) async {
@@ -94,6 +110,62 @@ final class NotificationService {
         content.sound = .default
         let comp = Calendar.current.dateComponents([.year, .month, .day, .hour], from: weekStartingDate)
         await replace(id: Identifier.deload, content: content, components: comp)
+    }
+
+    // MARK: Weekly memorization verse (v1.5)
+
+    func scheduleWeeklyVerseMonday(enabled: Bool) async {
+        let id = Identifier.weeklyVerseMonday
+        center.removePendingNotificationRequests(withIdentifiers: [id])
+        guard enabled else { return }
+        let content = UNMutableNotificationContent()
+        content.title = "This week's verse"
+        content.body = "Pick a verse to memorize and recite Thursday."
+        content.sound = .default
+        var comp = DateComponents()
+        comp.hour = 8
+        comp.minute = 0
+        comp.weekday = 2 // Monday (iOS weekday: 1=Sun … 7=Sat)
+        await replace(id: id, content: content, components: comp)
+    }
+
+    func scheduleWeeklyVerseThursday(enabled: Bool) async {
+        let id = Identifier.weeklyVerseThursday
+        center.removePendingNotificationRequests(withIdentifiers: [id])
+        guard enabled else { return }
+        let content = UNMutableNotificationContent()
+        content.title = "Recite this week's verse"
+        content.body = "Close the app, say it out loud, mark it memorized."
+        content.sound = .default
+        var comp = DateComponents()
+        comp.hour = 8
+        comp.minute = 0
+        comp.weekday = 5 // Thursday
+        await replace(id: id, content: content, components: comp)
+    }
+
+    // MARK: Identity revisit (v1.5 — one-shot, rebooked on review)
+
+    func scheduleIdentityReview(dueAt: Date, enabled: Bool) async {
+        let id = Identifier.identityReview
+        center.removePendingNotificationRequests(withIdentifiers: [id])
+        guard enabled, dueAt > .now else { return }
+        let content = UNMutableNotificationContent()
+        content.title = "Identity check-in"
+        content.body = "30 days. Time to revisit who you say you are."
+        content.sound = .default
+        let interval = max(60, dueAt.timeIntervalSinceNow)
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: interval, repeats: false)
+        let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
+        do {
+            try await center.add(request)
+        } catch {
+            log.error("Failed to schedule identityReview: \(String(describing: error))")
+        }
+    }
+
+    func cancelIdentityReview() async {
+        center.removePendingNotificationRequests(withIdentifiers: [Identifier.identityReview])
     }
 
     // MARK: Rest timer (one-shot)
