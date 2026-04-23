@@ -19,11 +19,6 @@ Shipped — see CHANGELOG.md:
 - Charts on Sunday review screen (promise rate trend, workout completion bar chart).
 - Multiple identity sentences with 30-day cadence reminder to revisit.
 
-## Post-v1
-
-- Focus filter integration for training days.
-- Apple Watch companion for rest timer and GTG logging.
-
 ## Explicitly declined
 
 - Social features.

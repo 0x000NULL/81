@@ -53,9 +53,11 @@ Both app and widget belong to App Group `group.BA256NPZGA.warmachine`.
 
 ### Schema
 
-`SchemaV4: VersionedSchema` (`Models/ModelContainer+Setup.swift`, version `1.3.0`) is the current schema and the single source of truth for model registration. **Any new `@Model` type must be added to `SchemaV4.models`** (which currently aliases `SchemaV3.models`) — otherwise queries silently return empty and writes crash at runtime.
+`SchemaV4: VersionedSchema` (`Models/ModelContainer+Setup.swift`, version `1.3.0`) is the current schema and the single source of truth for model registration. **Any new `@Model` type must be added to `SchemaV4.models`** — otherwise queries silently return empty and writes crash at runtime.
 
-V4's only delta vs V3 is dropping `@Attribute(.unique)` from 8 models so the store can open under `NSPersistentCloudKitContainer` (CloudKit has no unique-constraint primitive). Uniqueness now lives in `Models/Stores/` — eight `findOrCreate` helpers (`GtgLogStore`, `DailyLogStore`, `SundayReviewStore`, `BookProgressStore`, `EquipmentStore`, `FavoritesStore`, `LiftProgressionStore`, `PRCacheStore`) that return the canonical row and merge any sync-collision duplicates inline (sum reps, MAX progress fields, OR booleans, prefer non-empty text, per-key MAX in JSON dicts). Every find-or-create write site routes through them — adding a new uniqueness key means adding a Store, not a `@Attribute(.unique)`.
+V4's core delta vs V3 is dropping `@Attribute(.unique)` from 8 models so the store can open under `NSPersistentCloudKitContainer` (CloudKit has no unique-constraint primitive). Uniqueness now lives in `Models/Stores/` — eight `findOrCreate` helpers (`GtgLogStore`, `DailyLogStore`, `SundayReviewStore`, `BookProgressStore`, `EquipmentStore`, `FavoritesStore`, `LiftProgressionStore`, `PRCacheStore`) that return the canonical row and merge any sync-collision duplicates inline (sum reps, MAX progress fields, OR booleans, prefer non-empty text, per-key MAX in JSON dicts). Every find-or-create write site routes through them — adding a new uniqueness key means adding a Store, not a `@Attribute(.unique)`.
+
+**Extend SchemaV4 additively.** v1.5 added `WeeklyVerseTarget` to `SchemaV4.models` and gave `UserProfile` new fields (`identitySentences: [String]`, `lastIdentityReviewedAt: Date?`) without bumping the schema version — SwiftData lightweight inference handles additive changes cleanly, same as v1.0→v1.3. Keep this pattern until a non-additive change forces a real staged migration.
 
 **`AppModelContainer` does NOT pass a `migrationPlan:` — this is deliberate.** `SchemaV1`/`V2`/`V3`/`V4` and `WarMachineMigrationPlan` still exist in the file, but they all reference the same live `@Model` classes, so each version hashes to the *current* model graph at runtime rather than a frozen snapshot. `NSStagedMigrationManager` rejects that (`loadIssueModelContainer`), which is what caused the crash-on-launch after the Phase 0 PR merge. Letting SwiftData do default lightweight inference against `SchemaV4` works and is how v1.0→v1.1→v1.3 shipped (the V3→V4 delta is a constraint relaxation, which lightweight inference handles cleanly). Don't re-enable the plan unless you're ready to freeze per-version model snapshots (separate namespaces, distinct `@Model` classes per version).
 
@@ -78,11 +80,15 @@ Views ─────────────▶ Engines (pure logic) ──▶ 
    └───────▶ Services (HealthKit, Location, Notifications, RestTimer, Export)
 ```
 
-- **`Engine/`** — pure, synchronous decision logic with no I/O. `TodayEngine`, `ProgressionEngine`, `DeloadEngine`, `ReturnEngine` (six-branch policy for gaps / injury / sickness / travel), `VerseEngine` (deterministic by date), `PRDetector` + `PRDetectorBridge` (six `PRKind`s; writes through `ExercisePRCache`), `PlateCalculator` (greedy with unlimited repeats — defaults include 2.5 lb), `LastSessionHintProvider`, `LoggerKindBackfill` (runs once at launch to reclassify legacy `ExerciseLog` rows). Tests live here. Keep engines free of SwiftData `ModelContext` — pass in the data they need.
+- **`Engine/`** — pure, synchronous decision logic with no I/O. `TodayEngine`, `ProgressionEngine`, `DeloadEngine`, `ReturnEngine` (six-branch policy for gaps / injury / sickness / travel), `VerseEngine` (deterministic by date, plus weekly-target picking), `IdentityEngine` (deterministic rotation across `UserProfile.identitySentences` + 30-day review-due calculation), `WeeklyStatsEngine` (promise-rate and workouts-per-week series for Sunday-review charts), `PRDetector` + `PRDetectorBridge` (six `PRKind`s; writes through `ExercisePRCache`), `PlateCalculator` (greedy with unlimited repeats — defaults include 2.5 lb), `LastSessionHintProvider`, `LoggerKindBackfill` (runs once at launch to reclassify legacy `ExerciseLog` rows). Tests live here. Keep engines free of SwiftData `ModelContext` — pass in the data they need.
 - **`Services/`** — side-effectful boundaries. `HealthKitService` is an actor; `RestTimerService` is a MainActor singleton (note in `FUTURE.md`: tests serialized as a consequence). Sleep aggregation intentionally sums only `.asleepCore + .asleepREM + .asleepDeep` — do not include `.inBed`/`.awake`.
 - **`Protocol/`** — static reference data (exercises, schedule, scaling, verses, prayers, starting weights, interval modalities, etc.). Treat as read-only constants. `LoggerClassification.kind(for: exerciseKey)` is the mapping from `exerciseKey` → `LoggerKind` that drives which logger view the Workout tab renders; keep it authoritative.
 - **`Views/`** organized by flow: `Onboarding/`, `Main/`, `Workout/`, `Log/`, `Review/`, `Library/`, `Progress/`, `Settings/`, `Components/`.
-- **`App/`** — `WarMachineApp.swift` entrypoint, `AppRouter.swift` top-level navigation, `DeepLink.swift` for URL-scheme handling. On launch, `TodayEngine.cleanupStaleSessions` runs to clean abandoned `WorkoutSession` rows.
+- **`App/`** — `WarMachineApp.swift` entrypoint, `AppRouter.swift` top-level navigation, `DeepLink.swift` for URL-scheme handling. Routes: `warmachine://gtg` → `DeepLink.gtg` (widget pull-up counter), `warmachine://verse` → `DeepLink.weeklyVerse` (home tab). On launch, `TodayEngine.cleanupStaleSessions` runs to clean abandoned `WorkoutSession` rows.
+
+### Notifications — `NotificationService.Prefs` convention
+
+Per-notification UserDefaults toggles live under `NotificationService.Prefs` (e.g. `weeklyVerseMondayEnabled`, `identityReviewEnabled`). All default ON; `Prefs.bool(_:)` returns `true` when unset so new reminders light up without a migration. Identifiers live alongside in `NotificationService.Identifier`. Adding a reminder: add both keys, wire a `schedule…(enabled:)` method, call it from `rescheduleAll()`, and expose a toggle in Settings → Notifications.
 
 ### Rest timer — time-math, not tick-count
 
@@ -90,7 +96,7 @@ Views ─────────────▶ Engines (pure logic) ──▶ 
 
 ### Export / import
 
-`ExportService` writes schema version `"1.4-workout-v2"` (see `ExportPayload.currentSchemaVersion`) covering every model, including `ExercisePRCache` and `WarmUpLog`. Import **wipes current data** before loading. When adding a new `@Model`, update export/import round-trip and the corresponding test in `ServiceTests/ExportServiceTests.swift` (and the schema-version test in `ExportSchemaV14Tests.swift`).
+`ExportService` writes schema version `"1.5-identity-weekly-verse"` (see `ExportPayload.currentSchemaVersion`) covering every model, including `ExercisePRCache`, `WarmUpLog`, and `WeeklyVerseTarget`. Decoders seed new fields (e.g. `identitySentences` from the legacy single `identitySentence`) for backward compatibility with older payloads. Import **wipes current data** before loading. When adding a new `@Model`, update export/import round-trip and the corresponding test in `ServiceTests/ExportServiceTests.swift` (and the schema-version test in `ExportSchemaV14Tests.swift` — file name kept from v1.4; currently targets 1.5).
 
 ## Conventions worth knowing
 
